@@ -51,6 +51,7 @@ const SignUp = () => {
       const response = await axiosInstance.post("/register/", formData);
       setSuccess("Successfully signed up!");
       toast("Login successful");
+      // Add checks to user doctor or client
       router.push("/home/dashboard");
       setError("");
     } catch (err) {
