@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-export default function SendForm() {
+export default function FormClient() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
