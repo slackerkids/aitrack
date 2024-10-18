@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import React from "react";
 
-export default function Navbar() {
+export default function NavbarClient() {
   return (
     <div className="navbar bg-base-100 fixed z-50">
       <div className="navbar-start">
