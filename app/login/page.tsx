@@ -52,6 +52,10 @@ const SignUp = () => {
       setSuccess("Successfully signed up!");
       toast("Login successful");
 
+      // Saving JWT Token to localStorage
+      const token = response.data.access_token;
+      localStorage.setItem("token", token);
+
       // Check role and push based on role
       if (response.data.role === "patient") {
         router.push("/client");
@@ -77,6 +81,10 @@ const SignUp = () => {
       const response = await axiosInstance.post("/login/", newData);
       setSuccess("Successfully loged in!");
       toast("Login successful");
+
+      // Saving JWT Token to localStorage
+      const token = response.data.access_token;
+      localStorage.setItem("token", token);
 
       // Check role and push based on role
       if (response.data.role === "patient") {

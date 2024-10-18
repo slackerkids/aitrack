@@ -24,7 +24,7 @@ const Doctor: React.FC = () => {
 
   const fetchPatients = async () => {
     try {
-      const response = await axiosInstance.get<Patient[]>('/api/patients');
+      const response = await axiosInstance.get<Patient[]>('/my_patients');
       setPatients(response.data);
     } catch (error) {
       console.error('Error fetching patients:', error);
