@@ -29,10 +29,8 @@ const Client = () => {
 
   return (
     <div className="p-6 bg-gray-50 max-h-screen relative">
-      {/* Map with hospital label */}
       <div className="relative mt-2 rounded-lg z-10">
         <Map center={[50.293483169889384, 57.158443679418326]} zoom={16} />
-        {/* Nearest hospital text */}
         <div className="absolute top-5 right-5 bg-white p-2 rounded-lg shadow-md" style={{zIndex: "50"}}>
           <p className="text-blue-500 font-semibold">
             Nearest Hospital: 542.5 m <br/>

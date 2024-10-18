@@ -6,7 +6,7 @@ export default function Dashboard() {
   
   return (
     <div className="flex">
-      <div className="flex-1">
+      <div className="flex-1 pt-[50px]">
         <SendForm/>
       </div>
     </div>
