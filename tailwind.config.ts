@@ -7,7 +7,11 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      boxShadow: {
+        'custom-light': 'rgba(0, 0, 0, 0.16) 0px 1px 4px',
+      },
+    },
   },
   plugins: [
     require("daisyui"),

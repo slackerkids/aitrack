@@ -7,8 +7,10 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <Navbar />
+    <Navbar />
+    <div className="pt-[60px]">
       {children}
+    </div>
     </>
   );
 }
