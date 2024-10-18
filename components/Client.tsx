@@ -1,54 +1,60 @@
 import React, { useEffect, useState } from "react";
 import FormClient from "./FormClient";
+import visitsData from "../data/data.json";
+
+interface Visit {
+  name: string;
+  date: string;
+  reason: string;
+}
 
 const Client = () => {
-  const [visits, setVisits] = useState([]);
+  const [visits, setVisits] = useState<Visit[]>([]);
 
   useEffect(() => {
-    const fetchVisits = async () => {
-      const response = await fetch("../data/visits.json");
-      const data = await response.json();
-      setVisits(data);
-    };
-
-    fetchVisits();
+    setVisits(visitsData);
   }, []);
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Fixed Navbar */}
-      <nav className="bg-gray-800 text-white p-4 fixed w-full z-10">
-        <h1 className="text-xl font-bold">My Dashboard</h1>
-      </nav>
+    <div className="p-6 bg-gray-50 max-h-screen">
 
-      {/* Main Content with top margin */}
-      <div className="p-6 bg-gray-50 mt-16 flex-1 overflow-auto">
-        <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Other cards... */}
-
-          {/* Visit Log Card */}
-          <div className="bg-gray-300 p-6 rounded-lg shadow-custom-light">
-            <h3 className="text-lg font-semibold mb-4">Visit Log</h3>
-            <div className="space-y-4">
-              {/* Individual Visit Entries */}
-              {visits.map((visit, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg shadow-custom-light">
-                  <h4 className="font-semibold">{visit.name}</h4>
-                  <p>Date: {visit.date}</p>
-                  <p>Reason: {visit.reason}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="bg-green-500 p-6 rounded-lg shadow-custom-light">
+          <h3 className="text-lg font-semibold mb-4">Latest Updates</h3>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>New feature release on 12th October</li>
+            <li>System maintenance scheduled for 20th October</li>
+          </ul>
         </div>
 
-        <div className="mt-6">
-          <div className="bg-white p-6 rounded-lg shadow-custom-light">
-            <h3 className="text-lg font-semibold mb-4">Submit Form</h3>
-            <FormClient />
-          </div>
+        <div className="bg-purple-500 p-6 rounded-lg shadow-custom-light">
+          <h3 className="text-lg font-semibold mb-4">Medical Statistics</h3>
+          <p>Total Patients: 500</p>
+          <p>Appointments Today: 25</p>
+          <p>Active Cases: 120</p>
+        </div>
+
+        {/* Health Metrics Card */}
+        <div className="bg-yellow-500 p-6 rounded-lg shadow-custom-light">
+          <h3 className="text-lg font-semibold mb-4">Health Metrics</h3>
+          <p>Avg. Blood Pressure: 120/80 mmHg</p>
+          <p>Avg. Heart Rate: 75 bpm</p>
+          <p>Recent Checkups: 30</p>
+        </div>
+      </div>
+
+      {/* Visit Log Card */}
+      <div className="mt-6 rounded-lg">
+        <h3 className="text-lg font-semibold mb-4">Visit Log</h3>
+        <div className="space-y-4">
+          {visits.map((visit, index) => (
+            <div key={index} className="bg-white p-4 rounded-lg shadow-custom-light">
+              <h4 className="font-semibold">{visit.name}</h4>
+              <p>Date: {visit.date}</p>
+              <p>Reason: {visit.reason}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
