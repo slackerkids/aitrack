@@ -51,8 +51,14 @@ const SignUp = () => {
       const response = await axiosInstance.post("/register/", formData);
       setSuccess("Successfully signed up!");
       toast("Login successful");
-      // Add checks to user doctor or client
-      router.push("/home/dashboard");
+
+      // Check role and push based on role
+      if (response.data.role === "patient") {
+        router.push("/client");
+      } else {
+        router.push("/doctor");
+      }
+
       setError("");
     } catch (err) {
       setError("Sign-up failed. Please try again.");
@@ -71,7 +77,14 @@ const SignUp = () => {
       const response = await axiosInstance.post("/login/", newData);
       setSuccess("Successfully loged in!");
       toast("Login successful");
-      router.push("/home/dashboard");
+
+      // Check role and push based on role
+      if (response.data.role === "patient") {
+        router.push("/client");
+      } else {
+        router.push("/doctor");
+      }
+
       setError("");
     } catch (err) {
       setError("Login failed. Please try again.");
