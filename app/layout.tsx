@@ -1,5 +1,7 @@
 import "@/styles/globals.css"
 import { Metadata } from "next";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
   title: "Decentrathon",
@@ -15,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
+        <ToastContainer/>
       </body>
     </html>
   );
