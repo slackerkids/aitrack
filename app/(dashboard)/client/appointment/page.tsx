@@ -32,7 +32,7 @@ const Appoinment: React.FC = () => {
   };
 
   return (
-    <div className="h-[92.6vh] flex flex-col justify-center bg-gray-100">
+    <div className="h-[92.6vh] max-w-[50%] flex flex-col justify-center bg-gray-100">
       <div className="w-full flex p-4 ">
         {/* Doctors List Section */}
         <div className="flex-shrink-0 w-full p-4 h-[85vh] bg-white shadow-md rounded-lg mr-4">

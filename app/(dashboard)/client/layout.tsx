@@ -23,7 +23,8 @@ export default function RootLayout({
   return (
     <>
       <NavbarClient />
-      <div className="pt-[60px]">
+      <div className="pt-[60px] bg-gray-100">
+        
         {children}
       </div>
     </>
