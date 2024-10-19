@@ -1,6 +1,3 @@
-import { Metadata } from "next";
-import React from "react";
-
 export default function Navbar() {
   return (
     <div className="navbar bg-base-100 fixed z-50">
@@ -45,7 +42,7 @@ export default function Navbar() {
             </li>
           </ul>
         </div>
-        <a className="btn btn-ghost text-xl">Decenthraton</a>
+        <a className="btn btn-ghost text-2xl font-bold bg-gradient-to-tr from-green-500 via-green-400 to-green-600 text-transparent bg-clip-text">HealHunter</a>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
