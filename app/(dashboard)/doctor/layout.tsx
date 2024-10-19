@@ -8,7 +8,7 @@ export default function RootLayout({
   return (
     <>
     <NavbarDoctor />
-    <div className="pt-[60px]">
+    <div className="pt-[60px] bg-gray-100 h-screen">
       {children}
     </div>
     </>
