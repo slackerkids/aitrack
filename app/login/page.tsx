@@ -121,10 +121,9 @@ const SignUp = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent max-h-screen"></div>
           <div className="relative">
             <div className="w-full max-w-xl xl:w-full xl:mx-auto xl:pr-24 xl:max-w-xl">
-              <h3 className="text-4xl font-bold text-white">
-                Join 35k+ web professionals & <br className="hidden xl:block" />
-                build your website
-              </h3>
+              <div className="flex justify-start">
+                <h3 className="text-5xl font-bold text-white">HealHunter</h3>
+              </div>
             </div>
           </div>
         </div>
@@ -135,7 +134,7 @@ const SignUp = () => {
               {isLogin ? "Sign in to OURNAME" : "Sign up to OURNAME"}
             </h2>
             <p className="mt-2 text-base text-gray-600">
-              {isLogin ? "Don’t have an account?" : "Already have an account?"}{" "}
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
               <button
                 onClick={() => setIsLogin(!isLogin)}
                 className={commonStyles.link}

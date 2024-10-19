@@ -1,6 +1,3 @@
-import { Metadata } from "next";
-import React from "react";
-
 export default function NavbarClient() {
   return (
     <div className="navbar bg-base-100 fixed z-50">
@@ -41,15 +38,15 @@ export default function NavbarClient() {
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
-            <li>
-              <a href="/client">Home</a>
-            </li>
-            <li>
-              <a href="/client/diagnosis">Diagnosis</a>
-            </li>
-            <li>
-              <a href="/client/appointment">Appointment</a>
-            </li>
+          <li>
+            <a href="/client">Home</a>
+          </li>
+          <li>
+            <a href="/client/diagnosis">Diagnosis</a>
+          </li>
+          <li>
+            <a href="/client/appointment">Appointment</a>
+          </li>
         </ul>
       </div>
       <div className="navbar-end">
