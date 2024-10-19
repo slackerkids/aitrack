@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import FormClient from "./FormClient";
 import visitsData from "../data/data.json";
 import Map from "./Map";
+import { MarqueeDemo } from "./Marquee";
 
 interface Visit {
   name: string;
@@ -101,6 +102,8 @@ const Client = () => {
           </div>
         </div>
       )}
+
+      <MarqueeDemo/>
     </div>
   );
 };
