@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import axiosInstance from '../app/axios/instance';
 
 const MyCalendar: React.FC = () => {
   const [date, setDate] = useState<Date>(new Date());
@@ -12,7 +13,7 @@ const MyCalendar: React.FC = () => {
     setDate(newDate);
   };
 
-  const handleAddEvent = () => {
+  const handleAddEvent = async () => {
     if (eventName.trim() && time.trim()) {
       const startTime = new Date(date);
       const [hours, minutes] = time.split(':').map(Number);
@@ -27,8 +28,25 @@ const MyCalendar: React.FC = () => {
         [eventDate]: [...(prevEvents[eventDate] || []), { eventName: eventName.trim(), endTime }],
       }));
 
-      setEventName(''); // Clear input field
-      setTime(''); // Clear time field
+      // Очистка полей ввода
+      setEventName('');
+      setTime('');
+
+      // Формируем данные для отправки на сервер
+      const formattedStartTime = startTime.toISOString().slice(0, 19).replace('T', ' ');
+      const formattedEndTime = endTime.toISOString().slice(0, 19).replace('T', ' ');
+      console.log(formattedEndTime, formattedStartTime)
+      try {
+        const response = await axiosInstance.post('/create_appointment', {
+          doctor_id: 1, // Пример id врача
+          start_time: formattedStartTime,
+          end_time: formattedEndTime,
+        });
+
+        console.log('Appointment created:', response.data);
+      } catch (error) {
+        console.error('Error creating appointment:', error);
+      }
     }
   };
 

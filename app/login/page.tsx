@@ -55,6 +55,7 @@ const SignUp = () => {
       // Saving JWT Token to localStorage
       const token = response.data.access_token;
       localStorage.setItem("token", token);
+      localStorage.setItem("token", token);
 
       // Check role and push based on role
       if (response.data.role === "patient") {
@@ -77,15 +78,18 @@ const SignUp = () => {
       email: formData.email,
       password: formData.password,
     };
+    console.log(newData)
     try {
       const response = await axiosInstance.post("/login/", newData);
       setSuccess("Successfully loged in!");
       toast("Login successful");
 
-      // Saving JWT Token to localStorage
       const token = response.data.access_token;
       localStorage.setItem("token", token);
 
+      const role = response.data.role;
+      localStorage.setItem("role", role);
+      console.log(role, token)
       // Check role and push based on role
       if (response.data.role === "patient") {
         router.push("/client");
