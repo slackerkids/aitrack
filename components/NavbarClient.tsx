@@ -34,7 +34,9 @@ export default function NavbarClient() {
             </li>
           </ul>
         </div>
-        <a className="btn btn-ghost text-xl">Decenthraton</a>
+        <a className="btn btn-ghost text-3xl font-bold bg-gradient-to-tr from-green-400 via-green-300 to-green-500 text-transparent bg-clip-text">
+          HealHunter
+        </a>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
