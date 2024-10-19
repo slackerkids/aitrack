@@ -52,7 +52,7 @@ export default function Navbar() {
             <a>Item 1</a>
           </li>
           <li>
-  ∆         <details>
+           <details>
               <summary>Parent</summary>
               <ul className="p-2">
                 <li>
