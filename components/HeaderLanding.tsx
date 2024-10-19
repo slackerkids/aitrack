@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const Header = () => {
   const [isTopOfPage, setIsTopOfPage] = useState<boolean>(true);
   const flexBetween = 'flex items-center justify-between';
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,10 +22,11 @@ const Header = () => {
   return (
     <div
       className={`${flexBetween} ${
-        isTopOfPage ? '' : 'bg-[#84ceff]'
+        isTopOfPage ? '' : 'bg-[#fff]'
       } transition fixed top-0 z-30 w-full p-5 md:px-16`}
     >
-      <img className="w-32 sm:w-40" src={'/assets/HealHunter.svg'} alt="Logo" />
+      <img className="w-32 sm:w-40" src={'/assets/images/HealHunter.svg'} alt="Logo" />
+      <button className='btn btn-success' onClick={() => {router.push("/login")}}>Login</button>
     </div>
   );
 };
