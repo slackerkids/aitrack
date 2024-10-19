@@ -65,7 +65,7 @@ const MyCalendar: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row p-4 max-w-full">
+    <div className="flex flex-col lg:flex-row p-4 w-[100%]">
       <div className="flex-1">
         <Calendar
           onChange={handleDateChange}
@@ -94,7 +94,7 @@ const MyCalendar: React.FC = () => {
           />
           <button
             onClick={handleAddEvent}
-            className="bg-blue-500 text-white p-2 rounded-r"
+            className="bg-green-400 text-white p-2 rounded-r"
           >
             Add
           </button>

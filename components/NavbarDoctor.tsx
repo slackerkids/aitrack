@@ -52,21 +52,7 @@ export default function Navbar() {
             <a href="/doctor">Clients</a>
           </li>
           <li>
-<<<<<<< HEAD
             <a href="/doctor/analysis">Analysis</a>
-=======
-           <details>
-              <summary>Parent</summary>
-              <ul className="p-2">
-                <li>
-                  <a>Submenu 1</a>
-                </li>
-                <li>
-                  <a>Submenu 2</a>
-                </li>
-              </ul>
-            </details>
->>>>>>> 891e217492bbf38e7bbeb201db17a64a894e8de9
           </li>
           <li>
             <a>Item 3</a>

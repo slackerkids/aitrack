@@ -32,7 +32,7 @@ const Client = () => {
       <div className="relative mt-2 rounded-lg z-10">
         <Map center={[50.293483169889384, 57.158443679418326]} zoom={16} />
         <div className="absolute top-5 right-5 bg-white p-2 rounded-lg shadow-md" style={{zIndex: "50"}}>
-          <p className="text-blue-500 font-semibold">
+          <p className="text-green-500 text-center">
             Nearest Hospital: 542.5 m <br/>
             <a href="https://2gis.kz/aktobe/search/%D0%91%D0%BE%D0%BB%D1%8C%D0%BD%D0%B8%D1%86%D0%B0%20%D1%81%D0%BA%D0%BE%D1%80%D0%BE%D0%B9%20%D0%BC%D0%B5%D0%B4%D0%B8%D1%86%D0%B8%D0%BD%D1%81%D0%BA%D0%BE%D0%B9%20%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D0%B8%20(%D0%91%D0%A1%D0%9C%D0%9F)/firm/70000001032078108/57.147897%2C50.29872?m=57.158607%2C50.294055%2F15.29">
             Больница скорой медицинской помощи (БСМП)
