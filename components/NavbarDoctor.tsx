@@ -65,7 +65,7 @@ export default function Navbar() {
             <a href="/doctor/analysis">Analysis</a>
           </li>
           <li>
-            <a>Item 3</a>
+            <a>Results</a>
           </li>
         </ul>
       </div>

@@ -1,6 +1,5 @@
 "use client";
 import {
-  FaCheckCircle,
   FaUser,
   FaEnvelope,
   FaLock,
@@ -78,7 +77,7 @@ const SignUp = () => {
       email: formData.email,
       password: formData.password,
     };
-    console.log(newData)
+    console.log(newData);
     try {
       const response = await axiosInstance.post("/login/", newData);
       setSuccess("Successfully loged in!");
@@ -89,7 +88,7 @@ const SignUp = () => {
 
       const role = response.data.role;
       localStorage.setItem("role", role);
-      console.log(role, token)
+      console.log(role, token);
       // Check role and push based on role
       if (response.data.role === "patient") {
         router.push("/client");
@@ -112,8 +111,8 @@ const SignUp = () => {
           <div className="absolute inset-0">
             <Image
               className="object-cover"
-              src="https://images.axios.com/fcgEfEnKtYXTXp-Pwx-ynEuRo20=/0x0:1920x1080/1920x1080/2023/01/17/1673986436931.jpg"
-              alt="Girl working on laptop"
+              src="https://images.unsplash.com/photo-1690321607822-669326f4e3cc?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              alt="Green abstract"
               fill
               style={{ objectFit: "cover" }}
             />
@@ -122,7 +121,7 @@ const SignUp = () => {
           <div className="relative">
             <div className="w-full max-w-xl xl:w-full xl:mx-auto xl:pr-24 xl:max-w-xl">
               <div className="flex justify-start">
-                <h3 className="text-5xl font-bold text-white">HealHunter</h3>
+                <h3 className="text-6xl font-bold text-white">HealHunter</h3>
               </div>
             </div>
           </div>
@@ -131,7 +130,21 @@ const SignUp = () => {
         <div className="flex items-center justify-center px-4 py-10 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24 h-screen">
           <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto">
             <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl">
-              {isLogin ? "Sign in to OURNAME" : "Sign up to OURNAME"}
+              {isLogin ? (
+                <>
+                  Sign in to{" "}
+                  <span className="text-4xl font-bold bg-gradient-to-tr from-green-500 via-green-400 to-green-600 text-transparent bg-clip-text">
+                    HealHunter
+                  </span>
+                </>
+              ) : (
+                <>
+                  Sign up to{" "}
+                  <span className="text-4xl font-bold bg-gradient-to-tr from-green-500 via-green-400 to-green-600 text-transparent bg-clip-text">
+                    HealHunter
+                  </span>
+                </>
+              )}
             </h2>
             <p className="mt-2 text-base text-gray-600">
               {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
