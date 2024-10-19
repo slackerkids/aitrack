@@ -10,8 +10,8 @@ interface PatientDetails {
   id: number;
   name: string;
   age: number;
-  disease: string;
-  description: string;
+  symptoms: string;
+  response: string;
 }
 
 const Doctor: React.FC = () => {
@@ -33,8 +33,9 @@ const Doctor: React.FC = () => {
 
   const fetchPatientDetails = async (patientId: number) => {
     try {
-      const response = await axiosInstance.get<PatientDetails>(`/api/patients/${patientId}`);
+      const response = await axiosInstance.get<PatientDetails>(`/patient_request/${patientId}`);
       setSelectedPatient(response.data);
+      console.log(response.data)
     } catch (error) {
       console.error('Error fetching patient details:', error);
     }
@@ -52,7 +53,7 @@ const Doctor: React.FC = () => {
                 onClick={() => fetchPatientDetails(patient.id)}
                 className="hover:bg-base-300"
               >
-                {patient.name}
+                <p className='text-lg font-medium'>{patient.name}</p>
               </a>
             </li>
           ))}
@@ -65,9 +66,8 @@ const Doctor: React.FC = () => {
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-3xl mb-4">{selectedPatient.name}</h2>
-              <p><strong>Age:</strong> {selectedPatient.age}</p>
-              <p><strong>Disease:</strong> {selectedPatient.disease}</p>
-              <p><strong>Description:</strong> {selectedPatient.description}</p>
+              <p><strong>AI Outline:</strong> {selectedPatient.response}</p>
+              <p><strong>User symptom:</strong> {selectedPatient.symptoms}</p>
             </div>
           </div>
         ) : (
