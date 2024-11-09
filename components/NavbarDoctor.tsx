@@ -1,4 +1,14 @@
+"use client";
+import { useRouter } from "next/navigation";
+
 export default function Navbar() {
+  const router = useRouter();
+
+  const handleLogOut = () => {
+    localStorage.removeItem("access_token");
+    router.push("/");
+  };
+
   return (
     <div className="navbar bg-base-100 fixed z-50">
       <div className="navbar-start">
@@ -55,12 +65,14 @@ export default function Navbar() {
             <a href="/doctor/analysis">Analysis</a>
           </li>
           <li>
-            <a href="/doctor/message">Message</a>
+            <a>Item 3</a>
           </li>
         </ul>
       </div>
       <div className="navbar-end">
-        <a className="btn">Button</a>
+        <button className="btn btn-error" onClick={handleLogOut}>
+          Logout
+        </button>
       </div>
     </div>
   );
