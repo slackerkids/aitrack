@@ -72,7 +72,7 @@ export default function FormClient() {
 
       const data = await response.json(); // Assuming the response is JSON
       console.log("Success:", data);
-      router.push("/client"); // Redirect to /client
+      router.push("/client/chat");
       toast.success("Request submitted successfully!"); // Show success toast
     } catch (error) {
       console.error("Error:", error);

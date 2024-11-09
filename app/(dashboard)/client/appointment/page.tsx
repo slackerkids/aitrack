@@ -12,10 +12,8 @@ interface Doctor {
 
 const Appoinment: React.FC = () => {
   const [doctors] = useState<Doctor[]>([
-    { id: 1, name: "Dr. Alice Johnson", specialization: "Cardiologist" },
-    { id: 2, name: "Dr. Bob Williams", specialization: "Dermatologist" },
-    { id: 3, name: "Dr. Clara Smith", specialization: "Neurologist" },
-    { id: 4, name: "Dr. David Brown", specialization: "Pediatrician" },
+    { id: 1, name: "Kerey", specialization: "Дерматолог" },
+    { id: 2, name: "Aziz", specialization: "Терапевт" },
   ]);
 
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);

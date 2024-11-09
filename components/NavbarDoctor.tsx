@@ -43,7 +43,7 @@ export default function Navbar() {
           </ul>
         </div>
         <a className="btn btn-ghost text-3xl font-bold bg-gradient-to-tr from-green-400 via-green-300 to-green-500 text-transparent bg-clip-text">
-          HealHunter
+          HealHunter Doctor
         </a>
       </div>
       <div className="navbar-center hidden lg:flex">
@@ -55,7 +55,7 @@ export default function Navbar() {
             <a href="/doctor/analysis">Analysis</a>
           </li>
           <li>
-            <a>Item 3</a>
+            <a href="/doctor/message">Message</a>
           </li>
         </ul>
       </div>
