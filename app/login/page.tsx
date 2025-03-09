@@ -288,13 +288,6 @@ const SignUp = () => {
                 </div>
                 Sign up with Google
               </button>
-
-              <button type="button" className={commonStyles.socialButton}>
-                <div className="absolute inset-y-0 left-0 p-4">
-                  <FaFacebook className="w-6 h-6 text-[#2563EB]" />
-                </div>
-                Sign up with Facebook
-              </button>
             </div>
 
             <p className="mt-5 text-sm text-gray-600">
