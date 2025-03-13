@@ -36,8 +36,8 @@ const satoshi = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Decentrathon",
-  description: "Decentrathon AI Track 'Perplexity Team'",
+  title: "HealHunter - AI telehealth platform",
+  description: "HealHunter is a AI telemedicine platform that connects patients with doctors and healthcare providers.",
 };
 
 export default function RootLayout({

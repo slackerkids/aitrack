@@ -58,6 +58,12 @@ export default function NavbarClient() {
           <li>
             <a href="/client/appointment">Appointment</a>
           </li>
+          <li>
+            <a href="/client/calendar">Calendar</a>
+          </li>
+          <li>
+            <a href="/client/analysis">Analysis</a>
+          </li>
         </ul>
       </div>
       <div className="navbar-end">
