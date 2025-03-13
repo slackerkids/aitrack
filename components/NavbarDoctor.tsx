@@ -64,9 +64,6 @@ export default function Navbar() {
           <li>
             <a href="/doctor/analysis">Analysis</a>
           </li>
-          <li>
-            <a>Item 3</a>
-          </li>
         </ul>
       </div>
       <div className="navbar-end">
