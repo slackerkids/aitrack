@@ -4,13 +4,14 @@ An AI-backed telehealth SaaS for preliminary diagnosis.
 
 ## TODO
 
-- [x] new ClientCalendarUI (components/calendar)
-- [x] new ClientDiagnosisUI (components/analysis)
+- [x] new ClientCalendarUI (client/calendar, components/calendar)
+- [x] new ClientDiagnosisUI (client/analysis, components/analysis, api/transcribe, hooks/use-file-input, )
 - [x] Landing + onboarding
 - [] FIX GEMINI, WHISPER - urgent
 - [] Restructure APP.PY
 - [] Redesign NavBar
 - [] Redesign Doctor's UI
+- [] Google Meet API for video calls in Calendar 
 - [] Add analytics (PostHog or Vercel) - not urgent
 - [] Add Languine AI for 3-language translation
 - [] Deployment
