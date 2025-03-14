@@ -8,6 +8,7 @@ An AI-backed telehealth SaaS for preliminary diagnosis.
 - [x] new ClientDiagnosisUI (client/analysis, components/analysis, api/transcribe, hooks/use-file-input, )
 - [x] Landing + onboarding
 - [x] Redesign NavBar
+- [x] new DoctorDashboardUI (doctor/dashboard, components/DoctorDashboard)
 - [] FIX GEMINI, WHISPER - urgent
 - [] Restructure APP.PY
 - [] Redesign Doctor's UI
