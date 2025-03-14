@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { NavLink, BrowserRouter } from "react-router-dom";
-import { cn } from "@/lib/utils";
+"use client"
+
+import React, { useState, useEffect } from "react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 import {
   Home,
   Stethoscope,
@@ -11,76 +13,76 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button"
+import { useToast } from "@/components/ui/use-toast"
+import { usePathname } from "next/navigation"
 
 interface NavbarClientProps {
   onLogout?: () => void;
+  currentPath?: string;
 }
 
 interface NavItemProps {
-  to: string;
+  href: string;
   icon: React.ElementType;
   label: string;
   onClick?: () => void;
+  currentPath: string;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ to, icon: Icon, label, onClick }) => (
-  <li>
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        cn(
-          "navbar-link flex items-center gap-2 text-sm font-medium transition-all duration-300",
+const NavItem: React.FC<NavItemProps> = ({ href, icon: Icon, label, onClick, currentPath }) => {
+  const isActive = currentPath === href;
+  
+  return (
+    <li>
+      <Link
+        href={href}
+        className={cn(
+          "flex items-center gap-2 text-sm font-medium transition-all duration-300",
           isActive
-            ? "text-primary active"
-            : "text-muted-foreground hover:text-foreground",
-        )
-      }
-      onClick={onClick}
-    >
-      <Icon size={18} className="transition-transform duration-300 group-hover:scale-110" />
-      <span>{label}</span>
-    </NavLink>
-  </li>
-);
+            ? "text-primary"
+            : "text-muted-foreground hover:text-foreground"
+        )}
+        onClick={onClick}
+      >
+        <Icon size={18} className="transition-transform duration-300 group-hover:scale-110" />
+        <span>{label}</span>
+      </Link>
+    </li>
+  );
+};
 
-const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout }) => {
+const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout, currentPath = "" }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleLogOut = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("role");
 
-    // Show toast notification
     toast({
       title: "Logged out successfully",
       description: "You have been logged out of your account",
       duration: 3000,
     });
 
-    // Call the onLogout prop if provided
     if (onLogout) {
       onLogout();
     } else {
-      // Default fallback - navigate to home
       window.location.href = "/";
     }
   };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-    // Prevent scrolling when menu is open
     document.body.style.overflow = !isMobileMenuOpen ? "hidden" : "";
   };
 
@@ -90,71 +92,59 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout }) => {
   };
 
   return (
-    <BrowserRouter>
-      <nav
-        className={cn(
-          "fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out",
-          isScrolled
-            ? "bg-white/80 dark:bg-gray-950/80 backdrop-blur-md shadow-sm"
-            : "bg-transparent",
-        )}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo/Brand */}
-            <div className="flex-shrink-0">
-              <NavLink to="/client" className="flex items-center">
-                <span className="btn btn-ghost text-3xl font-bold tracking-tight bg-gradient-to-tr from-green-400 via-green-300 to-green-500 text-transparent bg-clip-text">
-                  HealHunter Patient
-                </span>
-              </NavLink>
-            </div>
+    <nav className={cn(
+      "fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out",
+      isScrolled
+        ? "bg-white/80 dark:bg-gray-950/80 backdrop-blur-md shadow-sm"
+        : "bg-transparent"
+    )}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex-shrink-0">
+            <Link href="/client" className="flex items-center">
+              <span className="btn btn-ghost text-3xl font-bold tracking-tight bg-gradient-to-tr from-green-400 via-green-300 to-green-500 text-transparent bg-clip-text">
+                HealHunter Patient
+              </span>
+            </Link>
+          </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:block">
-              <ul className="flex space-x-6 items-center">
-                <NavItem to="/client" icon={Home} label="Home" />
-                <NavItem to="/client/diagnosis" icon={Stethoscope} label="Diagnosis" />
-                <NavItem
-                  to="/client/appointment"
-                  icon={CalendarClock}
-                  label="Appointment"
-                />
-                <NavItem to="/client/calendar" icon={Calendar} label="Calendar" />
-                <NavItem to="/client/analysis" icon={BarChartBig} label="Analysis" />
-              </ul>
-            </div>
+          <div className="hidden md:block">
+            <ul className="flex space-x-6 items-center">
+              <NavItem href="/client" icon={Home} label="Home" currentPath={currentPath} />
+              <NavItem href="/client/diagnosis" icon={Stethoscope} label="Diagnosis" currentPath={currentPath} />
+              <NavItem href="/client/appointment" icon={CalendarClock} label="Appointment" currentPath={currentPath} />
+              <NavItem href="/client/calendar" icon={Calendar} label="Calendar" currentPath={currentPath} />
+              <NavItem href="/client/analysis" icon={BarChartBig} label="Analysis" currentPath={currentPath} />
+            </ul>
+          </div>
 
-            {/* Logout Button and Mobile Menu Trigger */}
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogOut}
-                className="hidden md:flex items-center gap-2 text-destructive hover:bg-destructive/10 transition-all duration-300"
-              >
-                <LogOut size={16} />
-                <span>Logout</span>
-              </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogOut}
+              className="hidden md:flex items-center gap-2 text-destructive hover:bg-destructive/10 transition-all duration-300"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </Button>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                aria-label="Toggle menu"
-                onClick={toggleMobileMenu}
-              >
-                <Menu size={24} />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              aria-label="Toggle menu"
+              onClick={toggleMobileMenu}
+            >
+              <Menu size={24} />
+            </Button>
           </div>
         </div>
-      </nav>
+      </div>
 
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="mobile-menu md:hidden">
-          <div className="mobile-menu-container">
+        <div className="fixed inset-0 bg-background/95 backdrop-blur-sm md:hidden z-50">
+          <div className="container h-full p-6">
             <div className="flex justify-end mb-6">
               <Button variant="ghost" size="icon" onClick={closeMobileMenu}>
                 <X size={24} className="text-foreground" />
@@ -162,37 +152,17 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout }) => {
             </div>
 
             <ul className="flex flex-col space-y-5 mt-4">
-              <NavItem to="/client" icon={Home} label="Home" onClick={closeMobileMenu} />
-              <NavItem
-                to="/client/diagnosis"
-                icon={Stethoscope}
-                label="Diagnosis"
-                onClick={closeMobileMenu}
-              />
-              <NavItem
-                to="/client/appointment"
-                icon={CalendarClock}
-                label="Appointment"
-                onClick={closeMobileMenu}
-              />
-              <NavItem
-                to="/client/calendar"
-                icon={Calendar}
-                label="Calendar"
-                onClick={closeMobileMenu}
-              />
-              <NavItem
-                to="/client/analysis"
-                icon={BarChartBig}
-                label="Analysis"
-                onClick={closeMobileMenu}
-              />
+              <NavItem href="/client" icon={Home} label="Home" onClick={closeMobileMenu} currentPath={currentPath} />
+              <NavItem href="/client/diagnosis" icon={Stethoscope} label="Diagnosis" onClick={closeMobileMenu} currentPath={currentPath} />
+              <NavItem href="/client/appointment" icon={CalendarClock} label="Appointment" onClick={closeMobileMenu} currentPath={currentPath} />
+              <NavItem href="/client/calendar" icon={Calendar} label="Calendar" onClick={closeMobileMenu} currentPath={currentPath} />
+              <NavItem href="/client/analysis" icon={BarChartBig} label="Analysis" onClick={closeMobileMenu} currentPath={currentPath} />
             </ul>
 
-            <div className="mt-auto">
+            <div className="mt-8">
               <Button
                 variant="destructive"
-                className="w-full mt-6 flex items-center justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2"
                 onClick={handleLogOut}
               >
                 <LogOut size={16} />
@@ -202,7 +172,7 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout }) => {
           </div>
         </div>
       )}
-    </BrowserRouter>
+    </nav>
   );
 };
 
