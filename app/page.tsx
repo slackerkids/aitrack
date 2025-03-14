@@ -1,5 +1,6 @@
+'use client'
 import Link from "next/link"
-import Image from 'next/image'
+import { TextEffect } from '@/components/motion-primitives/text-effect'
 
 export default function HeroSection() {
   return (
@@ -20,7 +21,7 @@ export default function HeroSection() {
               {["Features", "Docs"].map((item) => (
                 <Link
                   key={item}
-                  href={`/${item.toLowerCase()}`}
+                  href={item === "Features" ? "#features" : `/${item.toLowerCase()}`}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
                   {item}
@@ -40,13 +41,13 @@ export default function HeroSection() {
       {/* Hero Content */}
       <main className="relative z-10 flex flex-col items-center justify-center px-6 pt-10 pb-32 mx-auto text-center max-w-7xl">
         <h1 className="max-w-4xl mx-auto text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-          An AI-backed telehealth SaaS for preliminary diagnosis
+          An AI-backed all-in-one telehealth SaaS for <TextEffect>preliminary diagnosis</TextEffect>
         </h1>
         <p className="max-w-2xl mx-auto mt-6 text-lg text-gray-300">
           HealHunter’s AI agent generates preliminary diagnoses and sends them directly to specialists, eliminating the
           need for offline visits.
         </p>
-        <div className="flex flex-col mt-10 space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+        <div className="flex justify-center mt-10">
           <Link
             href="/login"
             className="flex items-center justify-center px-8 py-3 text-lg font-medium text-gray-900 bg-white rounded-md hover:bg-gray-100 transition-colors"
@@ -60,47 +61,10 @@ export default function HeroSection() {
               />
             </svg>
           </Link>
-          <Link
-            href="/"
-            className="px-8 py-3 text-lg font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700 transition-colors"
-          >
-            Build With AI
-          </Link>
         </div>
-        
-        {/*
-          {/* Partners Section * /}
-          <div className="w-full mt-24">
-            <p className="mb-8 text-gray-400">
-              Scale works with <span className="text-white">Generative AI Companies</span>, U.S. Government Agencies &
-              Enterprises
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-              {/* Partner logos * /}
-              <div className="h-8 text-white">
-                <svg className="h-full" viewBox="0 0 36 36" fill="currentColor">
-                  <path d="M31.8,30.7c-2.2,2.4-5.1,3.7-8.3,3.7c-6.1,0-11.3-4.5-11.3-10.4c0-5.9,5.2-10.4,11.3-10.4c3.2,0,6.1,1.3,8.3,3.7c2.2-2.4,3.4-5.5,3.4-8.9C35.2,3.8,31.3,0,26.6,0h-18C3.8,0,0,3.8,0,8.4v19.1C0,32.2,3.8,36,8.4,36h18.1c4.7,0,8.6-3.8,8.6-8.4C35.2,36.2,34,33.1,31.8,30.7z M23.5,30.5c-3.6,0-6.5-2.9-6.5-6.5c0-3.6,2.9-6.5,6.5-6.5c3.6,0,6.5,2.9,6.5,6.5C30,27.6,27.1,30.5,23.5,30.5z" />
-                </svg>
-              </div>
-              <div className="h-8 text-white">
-                <svg className="h-full" viewBox="0 0 23 23" fill="currentColor">
-                  <path d="M0 0h10.7v10.7H0V0zm12.3 0H23v10.7H12.3V0zM0 12.3h10.7V23H0V12.3zm12.3 0H23V23H12.3V12.3z" />
-                </svg>
-              </div>
-              <div className="h-6 text-white">
-                <span className="text-xl font-bold">character.ai</span>
-              </div>
-              <div className="h-8 text-white">
-                <svg className="h-full" viewBox="0 0 32 32" fill="currentColor">
-                  <path d="M16 0C7.163 0 0 7.163 0 16s7.163 16 16 16 16-7.163 16-16S24.837 0 16 0zm0 28C9.373 28 4 22.627 4 16S9.373 4 16 4s12 5.373 12 12-5.373 12-12 12zm-4-16a4 4 0 108 0 4 4 0 00-8 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        */}
 
-        {/* Problem Solution Section */}
-        <div className="w-full mt-20 px-4">
+        {/* Problem Solution Section with ID */}
+        <div className="w-full mt-20 px-4" id="features">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto relative">
             {/* Issues Column */}
             <div className="space-y-8">
@@ -197,12 +161,11 @@ export default function HeroSection() {
               </div>
             </div>
 
-
             {/* Solutions Column */}
             <div className="space-y-8">
               <div className="flex items-start space-x-4">
                 <div>
-                  <h3 className="text-green-500 font-semibold mb-2">Simplifying the doctor's work</h3>
+                  <h3 className="text-green-500 font-semibold mb-2">Simplifying the doctor's work:</h3>
                   <p className="text-gray-300">
                     through remote medical examination and <span className="text-green-500 font-bold">automated booking</span> to
                     a specialist
@@ -245,7 +208,7 @@ export default function HeroSection() {
 
               <div className="flex items-start space-x-4">
                 <div>
-                  <h3 className="text-green-500 font-semibold mb-2">High-quality health analytics</h3>
+                  <h3 className="text-green-500 font-semibold mb-2">High-quality health analytics:</h3>
                   <p className="text-gray-300">
                     through <span className="text-green-500 font-bold">end-to-end support</span> and{" "}
                     <span className="text-green-500 font-bold">built-in advice</span> from the{" "}
@@ -269,5 +232,5 @@ export default function HeroSection() {
         </div>
       </main>
     </div>
-  )
+  );
 }
