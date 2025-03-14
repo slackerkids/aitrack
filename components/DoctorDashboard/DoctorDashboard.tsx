@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import DoctorHeader from "../DoctorDashboard/DoctorHeader"
 import DoctorSidebar from "../DoctorDashboard/DoctorSidebar"
 import AppointmentsView from "../DoctorDashboard/AppointmentsView"
 import PatientsView from "../DoctorDashboard/PatientsView"
@@ -13,7 +12,6 @@ export default function DoctorDashboard() {
   const [activeTab, setActiveTab] = useState("appointments")
   const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null)
 
-  // Sample doctor data
   const doctor = {
     id: 1,
     name: "Dr. Sarah Johnson",
@@ -41,11 +39,10 @@ export default function DoctorDashboard() {
           className={`flex-1 flex flex-col opacity-0 ${isLoaded ? "animate-fade-in" : ""}`}
           style={{ animationDelay: "0.6s" }}
         >
-          {/* Doctor Header */}
-          <DoctorHeader doctor={doctor} />
+          {/* <DoctorHeader doctor={doctor} /> */}
 
           {/* Main Dashboard Content */}
-          <div className="p-6">
+          <div className="p-3">
             {selectedPatientId ? (
               <PatientDetails patientId={selectedPatientId} onBack={() => setSelectedPatientId(null)} />
             ) : (
