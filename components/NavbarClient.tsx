@@ -104,7 +104,7 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout }) => {
             {/* Logo/Brand */}
             <div className="flex-shrink-0">
               <NavLink to="/client" className="flex items-center">
-                <span className="navbar-brand text-2xl font-bold tracking-tight">
+                <span className="btn btn-ghost text-3xl font-bold tracking-tight bg-gradient-to-tr from-green-400 via-green-300 to-green-500 text-transparent bg-clip-text">
                   HealHunter Patient
                 </span>
               </NavLink>
