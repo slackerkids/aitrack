@@ -1,4 +1,5 @@
 import NavbarDoctor from "@/components/NavbarDoctor";
+import DoctorSidebar from "@/components/DoctorDashboard/DoctorSidebar";
 
 export default function RootLayout({
   children,
@@ -6,12 +7,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
-    <NavbarDoctor />
-    <div className="pt-[60px] bg-gray-100 h-screen">
-      {children}
+    <div className="bg-gray-100 h-screen flex">
+      {/* Sidebar слева */}
+      <DoctorSidebar />
+
+      {/* Основное содержимое занимает оставшееся место */}
+      <div className="flex-1 overflow-auto">{children}</div>
     </div>
-    </>
   );
 }
-

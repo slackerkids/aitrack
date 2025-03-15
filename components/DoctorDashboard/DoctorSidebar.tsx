@@ -1,31 +1,35 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Calendar, Users, FileText, MessageSquare, Settings, HelpCircle, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { usePathname } from "next/navigation"
 
-interface DoctorSidebarProps {
-  doctor: {
-    name: string
-    specialization: string
-    avatar: string
-    hospital: string
-    experience: number
-    patients: number
-    rating: number
+export default function DoctorSidebar() {
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const doctor = {
+    name: "Dr. John Doe",
+    specialization: "Cardiologist",
+    avatar: "",
+    hospital: "Green Valley Hospital",
+    experience: 10,
+    patients: 150,
+    rating: 4.8,
   }
-  activeTab: string
-  setActiveTab: (tab: string) => void
-  isLoaded: boolean
-}
 
-export default function DoctorSidebar({ doctor, activeTab, setActiveTab, isLoaded }: DoctorSidebarProps) {
+  const navItems = [
+    { name: "Appointments", icon: Calendar, path: "/doctor/appointments", badge: 3 },
+    { name: "Patients", icon: Users, path: "/doctor/patients" },
+    { name: "Medical Records", icon: FileText, path: "/doctor/records" },
+    { name: "Messages", icon: MessageSquare, path: "/doctor/messages", badge: 5 },
+  ]
+
   return (
-    <div
-      className={`w-64 h-[calc(100vh-0rem)] bg-white/80 backdrop-blur-lg p-4 shadow-lg border-r border-green-100 opacity-0 ${isLoaded ? "animate-fade-in" : ""} flex flex-col`}
-      style={{ animationDelay: "0.4s" }}
-    >
+    <div className="w-64 h-screen bg-white backdrop-blur-lg p-4 shadow-lg border-r border-green-100 flex flex-col">
       {/* Doctor Profile */}
       <div className="flex flex-col items-center mb-6 pt-4">
         <Avatar className="h-20 w-20 mb-3">
@@ -60,39 +64,20 @@ export default function DoctorSidebar({ doctor, activeTab, setActiveTab, isLoade
       {/* Navigation */}
       <nav className="flex-1">
         <div className="space-y-1">
-          <Button
-            variant="ghost"
-            className={`w-full justify-start ${
-              activeTab === "appointments" ? "bg-green-100 text-green-800" : "text-green-700 hover:bg-green-50"
-            }`}
-            onClick={() => setActiveTab("appointments")}
-          >
-            <Calendar className="h-5 w-5 mr-3" />
-            Appointments
-            <Badge className="ml-auto bg-green-500">3</Badge>
-          </Button>
-
-          <Button
-            variant="ghost"
-            className={`w-full justify-start ${
-              activeTab === "patients" ? "bg-green-100 text-green-800" : "text-green-700 hover:bg-green-50"
-            }`}
-            onClick={() => setActiveTab("patients")}
-          >
-            <Users className="h-5 w-5 mr-3" />
-            Patients
-          </Button>
-
-          <Button variant="ghost" className="w-full justify-start text-green-700 hover:bg-green-50">
-            <FileText className="h-5 w-5 mr-3" />
-            Medical Records
-          </Button>
-
-          <Button variant="ghost" className="w-full justify-start text-green-700 hover:bg-green-50">
-            <MessageSquare className="h-5 w-5 mr-3" />
-            Messages
-            <Badge className="ml-auto bg-red-500">5</Badge>
-          </Button>
+          {navItems.map(({ name, icon: Icon, path, badge }) => (
+            <Button
+              key={name}
+              variant="ghost"
+              className={`w-full justify-start ${
+                pathname === path ? "bg-green-100 text-green-800" : "text-green-700 hover:bg-green-50"
+              }`}
+              onClick={() => router.push(path)}
+            >
+              <Icon className="h-5 w-5 mr-3" />
+              {name}
+              {badge && <Badge className="ml-auto bg-green-500">{badge}</Badge>}
+            </Button>
+          ))}
         </div>
       </nav>
 
@@ -118,4 +103,3 @@ export default function DoctorSidebar({ doctor, activeTab, setActiveTab, isLoade
     </div>
   )
 }
-

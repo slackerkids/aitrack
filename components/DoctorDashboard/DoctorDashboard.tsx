@@ -31,47 +31,14 @@ export default function DoctorDashboard() {
     <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-green-50 to-emerald-100">
       {/* Main Content */}
       <main className="relative w-full flex">
-        {/* Sidebar */}
-        <DoctorSidebar doctor={doctor} activeTab={activeTab} setActiveTab={setActiveTab} isLoaded={isLoaded} />
-
         {/* Main Content Area */}
         <div
           className={`flex-1 flex flex-col opacity-0 ${isLoaded ? "animate-fade-in" : ""}`}
           style={{ animationDelay: "0.6s" }}
         >
-          {/* <DoctorHeader doctor={doctor} /> */}
-
-          {/* Main Dashboard Content */}
-          <div className="p-3">
-            {selectedPatientId ? (
-              <PatientDetails patientId={selectedPatientId} onBack={() => setSelectedPatientId(null)} />
-            ) : (
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="w-full justify-start p-0 bg-transparent border-b border-green-100">
-                  <TabsTrigger
-                    value="appointments"
-                    className="data-[state=active]:bg-transparent data-[state=active]:text-green-700 data-[state=active]:border-b-2 data-[state=active]:border-green-500 rounded-none px-6 py-3"
-                  >
-                    My Appointments
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="patients"
-                    className="data-[state=active]:bg-transparent data-[state=active]:text-green-700 data-[state=active]:border-b-2 data-[state=active]:border-green-500 rounded-none px-6 py-3"
-                  >
-                    My Patients
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="appointments" className="pt-4">
-                  <AppointmentsView />
-                </TabsContent>
-
-                <TabsContent value="patients" className="pt-4">
-                  <PatientsView onSelectPatient={setSelectedPatientId} />
-                </TabsContent>
-              </Tabs>
-            )}
-          </div>
+        <div className="p-6">
+          <AppointmentsView />
+        </div>
         </div>
       </main>
     </div>
