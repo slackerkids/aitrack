@@ -30,6 +30,10 @@ export default function DoctorSidebar() {
       })
   }, [])
 
+  const handleLogout = () => {
+    router.push("/login")
+  }
+
   const navItems = [
     { name: "Appointments", icon: Calendar, path: "/doctor/appointments", badge: 3 },
     { name: "Patients", icon: Users, path: "/doctor/patients" },
@@ -112,7 +116,11 @@ export default function DoctorSidebar() {
             Help & Support
           </Button>
 
-          <Button variant="ghost" className="w-full justify-start text-red-600 hover:bg-red-50">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-red-600 hover:bg-red-50"
+            onClick={handleLogout}
+          >
             <LogOut className="h-5 w-5 mr-3" />
             Logout
           </Button>

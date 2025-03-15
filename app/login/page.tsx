@@ -12,6 +12,7 @@ import axiosInstance from "../axios/instance";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import PatientRegistration from "@/components/registration";
 
 const commonStyles = {
   inputIcon:
@@ -104,9 +105,13 @@ const SignUp = () => {
     }
   };
 
+  const toggleForm = () => {
+    setIsLogin(!isLogin);
+  };
+
   return (
-    <section className="bg-white max-h-screen">
-      <div className="grid grid-cols-1 lg:grid-cols-2 w-full max-h-screen">
+    <section className="bg-white h-screen">
+      <div className="grid grid-cols-1 lg:grid-cols-2 w-full h-screen">
         <div className="relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 bg-gray-50 sm:px-6 lg:px-8 l  max-h-screen">
           <div className="absolute inset-0">
             <Image
@@ -127,41 +132,26 @@ const SignUp = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-center px-4 py-10 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24 h-screen">
-          <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto">
-            <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl">
-              {isLogin ? (
-                <>
-                  Sign in to{" "}
-                  <span className="text-4xl font-bold bg-gradient-to-tr from-green-500 via-green-400 to-green-600 text-transparent bg-clip-text">
-                    HealHunter
-                  </span>
-                </>
-              ) : (
-                <>
-                  Sign up to{" "}
-                  <span className="text-4xl font-bold bg-gradient-to-tr from-green-500 via-green-400 to-green-600 text-transparent bg-clip-text">
-                    HealHunter
-                  </span>
-                </>
-              )}
-            </h2>
-            <p className="mt-2 text-base text-gray-600">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-              <button
-                onClick={() => setIsLogin(!isLogin)}
-                className={commonStyles.link}
-              >
-                {isLogin ? "Create a free account" : "Login"}
-              </button>
-            </p>
+        <div className="flex items-center justify-center px-4 bg-white sm:px-6 lg:px-8 sm:py-16 h-full">
+          
             {isLogin ? (
-              <form
-                action="#"
-                method="POST"
-                onSubmit={handleLogin}
-                className="mt-8 space-y-5"
-              >
+              <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto">
+              <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl">
+                  <>Sign in to </>
+                <span className="text-4xl font-bold bg-gradient-to-tr from-green-500 via-green-400 to-green-600 text-transparent bg-clip-text">
+                  HealHunter
+                </span>
+              </h2>
+              <p className="mt-2 text-base text-gray-600">
+                {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+                <button
+                  onClick={() => setIsLogin(!isLogin)}
+                  className={commonStyles.link}
+                >
+                  {isLogin ? "Create a free account" : "Login"}
+                </button>
+              </p>
+              <form action="#" method="POST" onSubmit={handleLogin} className="mt-8 space-y-5">
                 <div>
                   <label className="text-base font-medium text-gray-900">
                     Email address
@@ -172,7 +162,7 @@ const SignUp = () => {
                     </div>
                     <input
                       type="email"
-                      placeholder="Enter email to get started"
+                      placeholder="Enter email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
@@ -191,7 +181,7 @@ const SignUp = () => {
                     </div>
                     <input
                       type="password"
-                      placeholder="Enter your password"
+                      placeholder="Enter password"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
@@ -202,86 +192,11 @@ const SignUp = () => {
 
                 <div>
                   <button type="submit" className={commonStyles.button}>
-                    Log in
+                    Login
                   </button>
                 </div>
               </form>
-            ) : (
-              <form
-                action="#"
-                method="POST"
-                onSubmit={handleSignUp}
-                className="mt-8 space-y-5"
-              >
-                {error && <p className="text-red-500">{error}</p>}
-                {success && <p className="text-green-500">{success}</p>}
-
-                <div>
-                  <label className="text-base font-medium text-gray-900">
-                    First & Last name
-                  </label>
-                  <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                    <div className={commonStyles.inputIcon}>
-                      <FaUser className="w-5 h-5" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Enter your full name"
-                      name="company_name"
-                      value={formData.company_name}
-                      onChange={handleChange}
-                      className={commonStyles.input}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-base font-medium text-gray-900">
-                    Email address
-                  </label>
-                  <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                    <div className={commonStyles.inputIcon}>
-                      <FaEnvelope className="w-5 h-5" />
-                    </div>
-                    <input
-                      type="email"
-                      placeholder="Enter email to get started"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className={commonStyles.input}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-base font-medium text-gray-900">
-                    Password
-                  </label>
-                  <div className="mt-2.5 relative text-gray-400 focus-within:text-gray-600">
-                    <div className={commonStyles.inputIcon}>
-                      <FaLock className="w-5 h-5" />
-                    </div>
-                    <input
-                      type="password"
-                      placeholder="Enter your password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className={commonStyles.input}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <button type="submit" className={commonStyles.button}>
-                    Create account
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="mt-3 space-y-3">
+              <div className="mt-3 space-y-3">
               <button type="button" className={commonStyles.socialButton}>
                 <div className="absolute inset-y-0 left-0 p-4">
                   <FaGoogle className="w-6 h-6 text-rose-500" />
@@ -301,6 +216,9 @@ const SignUp = () => {
               </Link>
             </p>
           </div>
+            ) : (
+              <PatientRegistration onToggleForm={toggleForm} />
+            )}
         </div>
       </div>
     </section>
