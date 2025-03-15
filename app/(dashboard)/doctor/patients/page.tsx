@@ -35,7 +35,7 @@ export default function DoctorDashboardPage() {
             style={{ animationDelay: "0.6s" }}
           >
           <div className="p-6">
-            <PatientsView />
+            <PatientsView onSelectPatient={selectedPatientId}/>
           </div>
           </div>
         </main>
