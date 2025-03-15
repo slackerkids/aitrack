@@ -148,7 +148,7 @@ const SignUp = () => {
                   onClick={() => setIsLogin(!isLogin)}
                   className={commonStyles.link}
                 >
-                  {isLogin ? "Create a free account" : "Login"}
+                  {isLogin ? "Create one!" : "Login"}
                 </button>
               </p>
               <form action="#" method="POST" onSubmit={handleLogin} className="mt-8 space-y-5">

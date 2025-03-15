@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Heart, Activity, FileText, MoreVertical, MessageSquare, Calendar } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -8,17 +8,25 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import axiosInstance from "@/app/axios/instance"
 
 interface Patient {
   id: number
   name: string
-  age: number
+  email: string
   gender: string
-  avatar: string
-  lastVisit: string
+  dateOfBirth: string
+  phone: string
+  address: string
   condition: string
-  riskLevel: "low" | "medium" | "high"
-  aiInsights: string[]
+  riskLevel: string
+  lastVisit: string | null
+  bloodType: string
+  request?: {
+    id: number
+    symptoms: string
+    response: string
+  }
 }
 
 interface PatientsViewProps {
@@ -28,89 +36,44 @@ interface PatientsViewProps {
 export default function PatientsView({ onSelectPatient }: PatientsViewProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRisk, setSelectedRisk] = useState<string | null>(null)
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Sample patients data
-  const patients: Patient[] = [
-    {
-      id: 1,
-      name: "John Smith",
-      age: 58,
-      gender: "Male",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastVisit: "2025-03-01",
-      condition: "Hypertension, Diabetes",
-      riskLevel: "high",
-      aiInsights: [
-        "Blood pressure consistently above target range",
-        "Missed medication doses detected",
-        "Irregular sleep patterns",
-      ],
-    },
-    {
-      id: 2,
-      name: "Emily Johnson",
-      age: 42,
-      gender: "Female",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastVisit: "2025-02-15",
-      condition: "Arrhythmia",
-      riskLevel: "medium",
-      aiInsights: ["Heart rate variability improved", "Exercise frequency increased", "Stress levels reduced"],
-    },
-    {
-      id: 3,
-      name: "Michael Brown",
-      age: 65,
-      gender: "Male",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastVisit: "2025-03-05",
-      condition: "Coronary Artery Disease",
-      riskLevel: "high",
-      aiInsights: ["Chest pain episodes reported", "Decreased physical activity", "Weight gain of 3kg in past month"],
-    },
-    {
-      id: 4,
-      name: "Sarah Wilson",
-      age: 35,
-      gender: "Female",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastVisit: "2025-02-28",
-      condition: "Mitral Valve Prolapse",
-      riskLevel: "low",
-      aiInsights: ["Consistent medication adherence", "Normal vital signs", "Regular exercise routine maintained"],
-    },
-    {
-      id: 5,
-      name: "David Lee",
-      age: 72,
-      gender: "Male",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastVisit: "2025-03-10",
-      condition: "Heart Failure",
-      riskLevel: "medium",
-      aiInsights: [
-        "Slight increase in fluid retention",
-        "Shortness of breath during activity",
-        "Medication side effects reported",
-      ],
-    },
-  ]
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await axiosInstance.get("/my_patients/")
+        setPatients(response.data)
+      } catch (error) {
+        console.error("Error fetching patients:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  // Filter patients based on search query and risk level
+    fetchPatients()
+  }, [])
+
+  // Filter patients based on search query
   const filteredPatients = patients.filter((patient) => {
     const matchesSearch =
       patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.condition.toLowerCase().includes(searchQuery.toLowerCase())
+      (patient.condition && patient.condition.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    const matchesRisk = !selectedRisk || patient.riskLevel === selectedRisk
+    const matchesRisk = !selectedRisk || patient.riskLevel.toLowerCase() === selectedRisk
 
     return matchesSearch && matchesRisk
   })
 
   // Format date for display
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "No visits yet"
     const date = new Date(dateString)
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  }
+
+  if (loading) {
+    return <div>Loading patients...</div>
   }
 
   return (
@@ -144,9 +107,7 @@ export default function PatientsView({ onSelectPatient }: PatientsViewProps) {
           </Button>
           <Button
             variant={selectedRisk === "medium" ? "default" : "outline"}
-            className={
-              selectedRisk === "medium" ? "bg-green-600 hover:bg-green-700" : "text-green-700 border-green-200"
-            }
+            className={selectedRisk === "medium" ? "bg-green-600 hover:bg-green-700" : "text-green-700 border-green-200"}
             onClick={() => setSelectedRisk("medium")}
           >
             <Badge className="bg-yellow-200 text-yellow-800 mr-1">●</Badge>
@@ -175,7 +136,6 @@ export default function PatientsView({ onSelectPatient }: PatientsViewProps) {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-12 w-12">
-                    <AvatarImage src={patient.avatar} alt={patient.name} />
                     <AvatarFallback className="bg-green-100 text-green-800">
                       {patient.name
                         .split(" ")
@@ -188,25 +148,23 @@ export default function PatientsView({ onSelectPatient }: PatientsViewProps) {
                       {patient.name}
                       <Badge
                         className={`ml-2 ${
-                          patient.riskLevel === "low"
+                          patient.riskLevel.toLowerCase() === "low"
                             ? "bg-green-100 text-green-800"
-                            : patient.riskLevel === "medium"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
+                            : patient.riskLevel.toLowerCase() === "medium"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : patient.riskLevel.toLowerCase() === "medium" 
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {patient.riskLevel === "low"
-                          ? "Low Risk"
-                          : patient.riskLevel === "medium"
-                            ? "Medium Risk"
-                            : "High Risk"}
+                        {patient.riskLevel === "No" ? "No Risk" : patient.riskLevel}
                       </Badge>
                     </div>
                     <div className="text-sm text-green-600">
-                      {patient.age} years • {patient.gender}
+                      {new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} years • {patient.gender}
                     </div>
                     <div className="text-sm text-green-600 mt-1">
-                      <span className="font-medium">Condition:</span> {patient.condition}
+                      <span className="font-medium">Contact:</span> {patient.phone}
                     </div>
                   </div>
                 </div>
@@ -246,20 +204,23 @@ export default function PatientsView({ onSelectPatient }: PatientsViewProps) {
                 </div>
               </div>
 
-              {/* AI Insights */}
-              <div className="mt-3 pt-3 border-t border-green-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <Activity className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-800">AI Health Insights</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  {patient.aiInsights.map((insight, index) => (
-                    <div key={index} className="text-xs bg-green-50 p-2 rounded-md text-green-700">
-                      {insight}
+              {/* Patient Request */}
+              {patient.request && (
+                <div className="mt-3 pt-3 border-t border-green-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-800">Patient Request</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="text-xs bg-green-50 p-2 rounded-md text-green-700">
+                      <span className="font-medium">Symptoms:</span> {patient.request.symptoms}
                     </div>
-                  ))}
+                    <div className="text-xs bg-green-50 p-2 rounded-md text-green-700">
+                      <span className="font-medium">Response:</span> {patient.request.response}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         ))}
