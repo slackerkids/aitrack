@@ -60,7 +60,7 @@ const SignUp = () => {
       if (response.data.role === "patient") {
         router.push("/client");
       } else {
-        router.push("/doctor");
+        router.push("/doctor/appointments");
       }
 
       setError("");
@@ -93,7 +93,7 @@ const SignUp = () => {
       if (response.data.role === "patient") {
         router.push("/client");
       } else {
-        router.push("/doctor");
+        router.push("/doctor/appointments");
       }
 
       setError("");

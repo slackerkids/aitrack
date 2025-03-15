@@ -117,7 +117,7 @@ export default function PatientsView({ onSelectPatient }: PatientsViewProps) {
     <div className="space-y-6">
       {/* Search and Filter */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-grow">
+        <div className="relative flex-grow bg-white">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-green-500" />
           <Input
             placeholder="Search patients by name or condition"
@@ -168,7 +168,7 @@ export default function PatientsView({ onSelectPatient }: PatientsViewProps) {
         {filteredPatients.map((patient) => (
           <Card
             key={patient.id}
-            className="border-green-100 hover:bg-green-50 transition-colors cursor-pointer"
+            className="border-green-100 hover:bg-gray-50 transition-colors cursor-pointer"
             onClick={() => onSelectPatient(patient.id)}
           >
             <CardContent className="p-4">

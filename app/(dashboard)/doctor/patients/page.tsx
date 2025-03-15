@@ -2,6 +2,7 @@
 import DoctorDashboard from "@/components/DoctorDashboard/DoctorDashboard"
 import { useState, useEffect } from "react"
 import PatientsView from "@/components/DoctorDashboard/PatientsView"
+import PatientDetails from "@/components/DoctorDashboard/PatientDetails"
 
 export default function DoctorDashboardPage() {
     const [isLoaded, setIsLoaded] = useState(false)
@@ -35,7 +36,14 @@ export default function DoctorDashboardPage() {
             style={{ animationDelay: "0.6s" }}
           >
           <div className="p-6">
-            <PatientsView onSelectPatient={selectedPatientId}/>
+            {selectedPatientId ? (
+              <PatientDetails 
+                patientId={selectedPatientId} 
+                onBack={() => setSelectedPatientId(null)} 
+              />
+            ) : (
+              <PatientsView onSelectPatient={setSelectedPatientId} />
+            )}
           </div>
           </div>
         </main>

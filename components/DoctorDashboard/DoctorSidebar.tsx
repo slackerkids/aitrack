@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Calendar, Users, FileText, MessageSquare, Settings, HelpCircle, LogOut } from "lucide-react"
+import { Calendar, Users, FileText, MessageSquare, Settings, HelpCircle, LogOut, BarChart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -25,6 +25,7 @@ export default function DoctorSidebar() {
     { name: "Appointments", icon: Calendar, path: "/doctor/appointments", badge: 3 },
     { name: "Patients", icon: Users, path: "/doctor/patients" },
     { name: "Medical Records", icon: FileText, path: "/doctor/records" },
+    { name: "Analysis", icon: BarChart, path: "/doctor/analysis"},
     { name: "Messages", icon: MessageSquare, path: "/doctor/messages", badge: 5 },
   ]
 
