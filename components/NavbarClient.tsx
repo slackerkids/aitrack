@@ -12,6 +12,7 @@ import {
   LogOut,
   Menu,
   X,
+  Leaf,
 } from "lucide-react";
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
@@ -93,18 +94,16 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout, currentPath = "" 
 
   return (
     <nav className={cn(
-      "fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out",
-      isScrolled
-        ? "bg-white/80 dark:bg-gray-950/80 backdrop-blur-md shadow-sm"
-        : "bg-transparent"
+      "fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out bg-white",
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
             <Link href="/client" className="flex items-center">
-              <span className="btn btn-ghost text-3xl font-bold tracking-tight bg-gradient-to-tr from-green-400 via-green-300 to-green-500 text-transparent bg-clip-text">
-                HealHunter Patient
-              </span>
+              <div className="text-green-600 mr-2">
+                <Leaf className="h-8 w-8" />
+              </div>
+              <h1 className="text-[25px] font-bold text-gray-800">HealHunter</h1>
             </Link>
           </div>
 
