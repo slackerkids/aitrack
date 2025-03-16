@@ -28,19 +28,33 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import axiosInstance from "@/app/axios/instance"
 
+interface Doctor {
+  id: number;
+  name: string;
+  type: string;
+}
+
+interface Appointment {
+  id: number;
+  start_time: string;
+  end_time: string;
+  doctor: Doctor;
+  status: "upcoming" | "past";
+}
+
 interface UserData {
-  id: number
-  name: string
-  email: string
-  role: string
-  gender: string
-  dateOfBirth: string
-  phone: string
-  address: string
-  condition: string
-  riskLevel: string
-  bloodType: string
-  lastVisit: string | null
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  gender: string;
+  dateOfBirth: string;
+  phone: string;
+  address: string;
+  condition: string;
+  riskLevel: string;
+  bloodType: string;
+  lastVisit: string | null;
 }
 
 interface DashboardContentProps {
@@ -142,6 +156,27 @@ const PatientDashboard: React.FC = () => {
 
 // Dashboard Content Component
 const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await axiosInstance.get("/my_appointments");
+        setAppointments(response.data);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
+  // Find the next upcoming appointment
+  const nextAppointment = appointments.find(app => app.status === "upcoming");
+
   return (
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
@@ -202,41 +237,48 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
               <CardTitle>Next Appointment</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center">
-                <Avatar className="h-12 w-12 mr-4">
-                  <AvatarImage src={userData.avatar} alt={userData.name} />
-                  <AvatarFallback className="bg-green-100 text-green-800">
-                    {userData.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{userData.name}</h3>
-                  <p className="text-sm text-green-600">{userData.specialty}</p>
+              {nextAppointment ? (
+                <div className="flex items-center">
+                  <Avatar className="h-12 w-12 mr-4">
+                    <AvatarFallback className="bg-green-100 text-green-800">
+                      {nextAppointment.doctor.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold">{nextAppointment.doctor.name}</h3>
+                    <p className="text-sm text-green-600">{nextAppointment.doctor.type}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">
+                      {new Date(nextAppointment.start_time).toLocaleDateString()}
+                    </p>
+                    <Badge className="mt-1 bg-green-100 text-green-700 border-green-200">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {new Date(nextAppointment.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Badge>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">{userData.date}</p>
-                  <Badge className="mt-1 bg-green-100 text-green-700 border-green-200">
-                    <Clock className="w-3 h-3 mr-1" />
-                    30 min
-                  </Badge>
-                </div>
-              </div>
+              ) : (
+                <p className="text-gray-500">No upcoming appointments</p>
+              )}
             </CardContent>
-            <CardFooter className="border-t border-green-100 pt-4 flex justify-between">
-              <Button
-                variant="outline"
-                className="border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
-              >
-                Reschedule
-              </Button>
-              <Button className="bg-green-600 hover:bg-green-700 text-white">Join Video Call</Button>
-            </CardFooter>
+            {nextAppointment && (
+              <CardFooter className="border-t border-green-100 pt-4 flex justify-between">
+                <Button
+                  variant="outline"
+                  className="border-green-200 text-green-700 hover:bg-green-50 hover:text-green-800"
+                >
+                  Reschedule
+                </Button>
+                <Button className="bg-green-600 hover:bg-green-700 text-white">Join Video Call</Button>
+              </CardFooter>
+            )}
           </Card>
 
-          {/* Tabs for Appointments and Tests */}
+          {/* Tabs for Appointments */}
           <Tabs defaultValue="appointments" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-green-50/70">
               <TabsTrigger
@@ -246,93 +288,86 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
                 Upcoming Appointments
               </TabsTrigger>
               <TabsTrigger
-                value="tests"
+                value="past"
                 className="data-[state=active]:bg-white data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
               >
-                Recent Tests
+                Past Appointments
               </TabsTrigger>
             </TabsList>
             <TabsContent value="appointments">
               <Card className="border-0 shadow-md">
                 <CardContent className="pt-6">
                   <div className="space-y-4">
-                    {userData.upcomingAppointments?.map((appointment, index) => (
-                      <div key={index} className="flex items-center p-3 rounded-lg hover:bg-green-50">
-                        <Avatar className="h-10 w-10 mr-3">
-                          <AvatarImage src={appointment.avatar} alt={appointment.doctor} />
-                          <AvatarFallback className="bg-green-100 text-green-800">
-                            {appointment.doctor
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-medium">{appointment.doctor}</h4>
-                          <p className="text-xs text-gray-500">{appointment.specialty}</p>
+                    {appointments
+                      .filter(app => app.status === "upcoming")
+                      .map((appointment) => (
+                        <div key={appointment.id} className="flex items-center p-3 rounded-lg hover:bg-green-50">
+                          <Avatar className="h-10 w-10 mr-3">
+                            <AvatarFallback className="bg-green-100 text-green-800">
+                              {appointment.doctor.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-medium">{appointment.doctor.name}</h4>
+                            <p className="text-xs text-gray-500">{appointment.doctor.type}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-medium">
+                              {new Date(appointment.start_time).toLocaleDateString()}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(appointment.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-gray-400 ml-2" />
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium">{appointment.date}</p>
-                          <p className="text-xs text-gray-500">{appointment.time}</p>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-gray-400 ml-2" />
-                      </div>
-                    )) || <p>No upcoming appointments</p>}
+                      ))}
+                    {appointments.filter(app => app.status === "upcoming").length === 0 && (
+                      <p className="text-center text-gray-500">No upcoming appointments</p>
+                    )}
                   </div>
                 </CardContent>
-                <CardFooter className="border-t border-green-100 pt-4">
-                  <Button variant="ghost" className="w-full text-green-700 hover:text-green-800 hover:bg-green-50">
-                    View All Appointments
-                  </Button>
-                </CardFooter>
               </Card>
             </TabsContent>
-            <TabsContent value="tests">
+            <TabsContent value="past">
               <Card className="border-0 shadow-md">
                 <CardContent className="pt-6">
                   <div className="space-y-4">
-                    {userData.recentTests?.map((test, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-green-50">
-                        <div className="flex items-center">
-                          <div
-                            className={`p-2 rounded-full ${test.result === "Normal" ? "bg-green-100" : "bg-amber-100"}`}
-                          >
-                            <FileText
-                              className={`h-5 w-5 ${test.result === "Normal" ? "text-green-600" : "text-amber-600"}`}
-                            />
+                    {appointments
+                      .filter(app => app.status === "past")
+                      .map((appointment) => (
+                        <div key={appointment.id} className="flex items-center p-3 rounded-lg hover:bg-green-50">
+                          <Avatar className="h-10 w-10 mr-3">
+                            <AvatarFallback className="bg-green-100 text-green-800">
+                              {appointment.doctor.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-medium">{appointment.doctor.name}</h4>
+                            <p className="text-xs text-gray-500">{appointment.doctor.type}</p>
                           </div>
-                          <div className="ml-3">
-                            <h4 className="text-sm font-medium">{test.name}</h4>
-                            <p className="text-xs text-gray-500">{test.date}</p>
+                          <div className="text-right">
+                            <p className="text-sm font-medium">
+                              {new Date(appointment.start_time).toLocaleDateString()}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(appointment.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </p>
                           </div>
+                          <ChevronRight className="h-4 w-4 text-gray-400 ml-2" />
                         </div>
-                        <div className="flex items-center">
-                          <Badge
-                            className={`mr-3 ${
-                              test.result === "Normal"
-                                ? "bg-green-100 text-green-700 border-green-200"
-                                : "bg-amber-100 text-amber-700 border-amber-200"
-                            }`}
-                          >
-                            {test.result}
-                          </Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-700 hover:text-green-800 hover:bg-green-50"
-                          >
-                            <ArrowUpRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )) || <p>No recent tests</p>}
+                      ))}
+                    {appointments.filter(app => app.status === "past").length === 0 && (
+                      <p className="text-center text-gray-500">No past appointments</p>
+                    )}
                   </div>
                 </CardContent>
-                <CardFooter className="border-t border-green-100 pt-4">
-                  <Button variant="ghost" className="w-full text-green-700 hover:text-green-800 hover:bg-green-50">
-                    View All Test Results
-                  </Button>
-                </CardFooter>
               </Card>
             </TabsContent>
           </Tabs>
@@ -345,7 +380,6 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
             <CardContent className="pt-6">
               <div className="flex flex-col items-center">
                 <Avatar className="h-24 w-24 mb-4">
-                  <AvatarImage src={userData.avatar} alt={userData.name} />
                   <AvatarFallback className="bg-green-100 text-green-800 text-xl">
                     {userData.name
                       .split(" ")
@@ -383,61 +417,6 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
                 >
                   Edit Profile
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Medications Card */}
-          <Card className="border-0 shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle>Current Medications</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {userData.medications?.map((medication, index) => (
-                  <div key={index} className="p-3 bg-green-50 rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">{medication.name}</h4>
-                      <Badge className="bg-green-100 text-green-700 border-green-200">{medication.dosage}</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-1">{medication.frequency}</p>
-                    <p className="text-xs text-gray-500">{medication.time}</p>
-                  </div>
-                )) || <p>No current medications</p>}
-              </div>
-            </CardContent>
-            <CardFooter className="border-t border-green-100 pt-4">
-              <Button variant="ghost" className="w-full text-green-700 hover:text-green-800 hover:bg-green-50">
-                Medication History
-              </Button>
-            </CardFooter>
-          </Card>
-
-          {/* Health Tips Card */}
-          <Card className="border-0 shadow-md bg-gradient-to-br from-green-50 to-emerald-50">
-            <CardHeader className="pb-2">
-              <CardTitle>Health Tips</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="bg-green-100 p-2 rounded-full mr-3">
-                    <Activity className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium mb-1">Stay Active</h4>
-                    <p className="text-xs text-gray-600">Aim for at least 30 minutes of moderate activity daily.</p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <div className="bg-green-100 p-2 rounded-full mr-3">
-                    <Pill className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium mb-1">Take Medications</h4>
-                    <p className="text-xs text-gray-600">Remember to take your medications as prescribed.</p>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
