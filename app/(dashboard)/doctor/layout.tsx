@@ -12,7 +12,7 @@ export default function RootLayout({
       <DoctorSidebar />
 
       {/* Основное содержимое занимает оставшееся место */}
-      <div className="flex-1 overflow-auto">{children}</div>
+      <div className="flex-1 overflow-auto h-full w-full">{children}</div>
     </div>
   );
 }
