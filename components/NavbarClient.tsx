@@ -112,7 +112,6 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout, currentPath = "" 
               <NavItem href="/client" icon={Home} label="Home" currentPath={currentPath} />
               <NavItem href="/client/diagnosis" icon={Stethoscope} label="Diagnosis" currentPath={currentPath} />
               <NavItem href="/client/appointment" icon={CalendarClock} label="Appointment" currentPath={currentPath} />
-              <NavItem href="/client/calendar" icon={Calendar} label="Calendar" currentPath={currentPath} />
               <NavItem href="/client/analysis" icon={BarChartBig} label="Analysis" currentPath={currentPath} />
             </ul>
           </div>

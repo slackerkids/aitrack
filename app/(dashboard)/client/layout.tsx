@@ -20,9 +20,9 @@ export default function RootLayout({
   }, [router]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div>
       <NavbarClient />
-      <div className="flex-1 pt-[60px] bg-gray-100 h-screen">
+      <div className="pt-[60px] bg-gray-100 v-[100%] h-[100%] ">
         {children}
       </div>
     </div>

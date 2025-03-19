@@ -54,7 +54,7 @@ const CreateAppointment = () => {
     "03:30 PM",
   ]
 
-  const specialties = ["Dermatologist", "Therapist", "Cardiologist", "Neurologist", "Pediatrician"]
+  const specialties  = ["Dermatologist", "Therapist", "Cardiologist", "Neurologist", "Pediatrician"]
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -227,7 +227,7 @@ const CreateAppointment = () => {
                       filteredDoctors.map((doctor) => (
                         <li
                           key={doctor.id}
-                          className={`p-4 cursor-pointer transition-all duration-300 ${
+                          className={`p-2 cursor-pointer transition-all duration-300 ${
                             selectedDoctor?.id === doctor.id
                               ? "bg-green-50 border-l-4 border-green-500"
                               : "hover:bg-green-50/50"
