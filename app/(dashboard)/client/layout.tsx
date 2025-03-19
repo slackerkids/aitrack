@@ -14,18 +14,17 @@ export default function RootLayout({
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
 
-    // Immediately redirect if the role is not "patient"
     if (storedRole !== "patient" && typeof window !== "undefined") {
-      router.replace("/"); // Redirect to the homepage
+      router.replace("/"); 
     }
   }, [router]);
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <NavbarClient />
-      <div className="pt-[60px] bg-gray-100 v-[100%]">
+      <div className="flex-1 pt-[60px] bg-gray-100 h-screen">
         {children}
       </div>
-    </>
+    </div>
   );
 }

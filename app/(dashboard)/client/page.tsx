@@ -100,15 +100,15 @@ const PatientDashboard: React.FC = () => {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div className="h-full flex items-center justify-center">Loading...</div>
   }
 
   if (!userData) {
-    return <div>Error loading user data</div>
+    return <div className="h-full flex items-center justify-center">Error loading user data</div>
   }
 
   return (
-    <div className="flex h-full bg-green-50/50">
+    <div className="h-full flex flex-col bg-green-50/50">
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-6 md:p-8">{renderContent()}</div>
@@ -178,9 +178,9 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
   const nextAppointment = appointments.find(app => app.status === "upcoming");
 
   return (
-    <div>
+    <div >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-        <div>
+        <div className="pb-4 ">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Welcome back, {userData.name}</h1>
           <p className="text-gray-600 mt-1">Here's an overview of your health</p>
         </div>
