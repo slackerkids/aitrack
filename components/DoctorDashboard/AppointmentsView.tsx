@@ -20,88 +20,37 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
-interface Appointment {
+// Updated interface to match the actual API response
+interface Doctor {
   id: number
-  patientId: number
-  patientName: string
-  patientAvatar: string
-  date: string
-  startTime: string
-  endTime: string
-  status: "upcoming" | "completed" | "cancelled"
-  type: "video" | "in-person"
-  reason: string
-  notes?: string
+  name: string
+  type: string
 }
 
-export default function AppointmentsView() {
+interface Appointment {
+  id: number
+  start_time: string
+  end_time: string
+  status: string
+  doctor?: Doctor
+  patient?: {
+    id: number
+    name: string
+    avatar?: string
+  }
+  reason?: string
+  notes?: string
+  type?: "video" | "in-person"
+}
+
+interface AppointmentsViewProps {
+  appointments?: Appointment[]
+}
+
+export default function AppointmentsView({ appointments = [] }: AppointmentsViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [currentView, setCurrentView] = useState<"day" | "week" | "month">("day")
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
-
-  // Sample appointments data
-  const appointments: Appointment[] = [
-    {
-      id: 1,
-      patientId: 1,
-      patientName: "John Smith",
-      patientAvatar: "/placeholder.svg?height=40&width=40",
-      date: "2025-03-14",
-      startTime: "09:00",
-      endTime: "09:30",
-      status: "upcoming",
-      type: "video",
-      reason: "Chest pain and shortness of breath",
-    },
-    {
-      id: 2,
-      patientId: 2,
-      patientName: "Emily Johnson",
-      patientAvatar: "/placeholder.svg?height=40&width=40",
-      date: "2025-03-14",
-      startTime: "10:00",
-      endTime: "10:30",
-      status: "upcoming",
-      type: "in-person",
-      reason: "Annual checkup and ECG",
-    },
-    {
-      id: 3,
-      patientId: 3,
-      patientName: "Michael Brown",
-      patientAvatar: "/placeholder.svg?height=40&width=40",
-      date: "2025-03-14",
-      startTime: "11:30",
-      endTime: "12:00",
-      status: "upcoming",
-      type: "video",
-      reason: "Follow-up on medication adjustment",
-    },
-    {
-      id: 4,
-      patientId: 4,
-      patientName: "Sarah Wilson",
-      patientAvatar: "/placeholder.svg?height=40&width=40",
-      date: "2025-03-14",
-      startTime: "14:00",
-      endTime: "14:30",
-      status: "upcoming",
-      type: "in-person",
-      reason: "Heart palpitations and dizziness",
-    },
-    {
-      id: 5,
-      patientId: 5,
-      patientName: "David Lee",
-      patientAvatar: "/placeholder.svg?height=40&width=40",
-      date: "2025-03-14",
-      startTime: "15:30",
-      endTime: "16:00",
-      status: "upcoming",
-      type: "video",
-      reason: "Post-surgery follow-up",
-    },
-  ]
 
   // Format date for display
   const formatDate = (date: Date) => {
@@ -132,23 +81,70 @@ export default function AppointmentsView() {
     return `${hour.toString().padStart(2, "0")}:00`
   })
 
+  // Process appointments to extract date and time information
+  const processedAppointments = appointments.map((appointment) => {
+    try {
+      // Extract date and time from start_time and end_time
+      const startDateTime = new Date(appointment.start_time)
+      const endDateTime = new Date(appointment.end_time)
+
+      // Format date as YYYY-MM-DD
+      const date = startDateTime.toISOString().split("T")[0]
+
+      // Format times as HH:MM
+      const startTime = startDateTime.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+
+      const endTime = endDateTime.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+
+      return {
+        ...appointment,
+        date,
+        startTime,
+        endTime,
+        // Default to video if type is not specified
+        type: appointment.type || "video",
+      }
+    } catch (error) {
+      console.error("Error processing appointment:", error, appointment)
+      return appointment
+    }
+  })
+
   // Filter appointments for the current date
   const currentDateStr = currentDate.toISOString().split("T")[0]
-  const todayAppointments = appointments.filter((app) => app.date === currentDateStr)
+  const todayAppointments = processedAppointments.filter((app) => {
+    try {
+      return app.date === currentDateStr
+    } catch (error) {
+      console.error("Error filtering appointment:", error, app)
+      return false
+    }
+  })
 
   // Group appointments by time
   const appointmentsByTime: Record<string, Appointment[]> = {}
   todayAppointments.forEach((app) => {
-    if (!appointmentsByTime[app.startTime]) {
-      appointmentsByTime[app.startTime] = []
+    if (!app.startTime) return
+
+    const timeKey = app.startTime
+    if (!appointmentsByTime[timeKey]) {
+      appointmentsByTime[timeKey] = []
     }
-    appointmentsByTime[app.startTime].push(app)
+    appointmentsByTime[timeKey].push(app)
   })
 
   return (
-    <div className="space-y-6">
+    <div>
       {/* Calendar Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-4">
         <div className="flex items-center gap-4">
           <Button
             className="px-4 py-2 bg-green-600 text-white hover:bg-green-700"
@@ -236,16 +232,19 @@ export default function AppointmentsView() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
-                              <AvatarImage src={appointment.patientAvatar} alt={appointment.patientName} />
+                              <AvatarImage
+                                src={appointment.patient?.avatar || "/placeholder.svg?height=40&width=40"}
+                                alt={appointment.patient?.name || "Patient"}
+                              />
                               <AvatarFallback className="bg-green-100 text-green-800">
-                                {appointment.patientName
+                                {(appointment.patient?.name || "P")
                                   .split(" ")
                                   .map((n) => n[0])
                                   .join("")}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <div className="font-medium text-green-800">{appointment.patientName}</div>
+                              <div className="font-medium text-green-800">{appointment.patient?.name || "Patient"}</div>
                               <div className="text-xs text-green-600">
                                 {appointment.startTime} - {appointment.endTime}
                               </div>
@@ -304,16 +303,19 @@ export default function AppointmentsView() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
-                              <AvatarImage src={appointment.patientAvatar} alt={appointment.patientName} />
+                              <AvatarImage
+                                src={appointment.patient?.avatar || "/placeholder.svg?height=40&width=40"}
+                                alt={appointment.patient?.name || "Patient"}
+                              />
                               <AvatarFallback className="bg-green-100 text-green-800">
-                                {appointment.patientName
+                                {(appointment.patient?.name || "P")
                                   .split(" ")
                                   .map((n) => n[0])
                                   .join("")}
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <div className="font-medium text-green-800">{appointment.patientName}</div>
+                              <div className="font-medium text-green-800">{appointment.patient?.name || "Patient"}</div>
                               <div className="text-xs text-green-600">
                                 {appointment.startTime} - {appointment.endTime}
                               </div>
@@ -387,17 +389,22 @@ export default function AppointmentsView() {
             <div className="space-y-4">
               <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src={selectedAppointment.patientAvatar} alt={selectedAppointment.patientName} />
+                  <AvatarImage
+                    src={selectedAppointment.patient?.avatar || "/placeholder.svg?height=40&width=40"}
+                    alt={selectedAppointment.patient?.name || "Patient"}
+                  />
                   <AvatarFallback className="bg-green-100 text-green-800 text-xl">
-                    {selectedAppointment.patientName
+                    {(selectedAppointment.patient?.name || "P")
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h4 className="text-lg font-medium text-green-800">{selectedAppointment.patientName}</h4>
-                  <p className="text-sm text-green-600">Patient ID: #{selectedAppointment.patientId}</p>
+                  <h4 className="text-lg font-medium text-green-800">
+                    {selectedAppointment.patient?.name || "Patient"}
+                  </h4>
+                  <p className="text-sm text-green-600">Patient ID: #{selectedAppointment.patient?.id || "N/A"}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge
                       className={
@@ -414,8 +421,8 @@ export default function AppointmentsView() {
                       {selectedAppointment.type === "video" ? "Video Call" : "In-person Visit"}
                     </Badge>
                     <div className="text-xs text-green-600">
-                      {selectedAppointment.date.split("-").reverse().join("/")} • {selectedAppointment.startTime} -{" "}
-                      {selectedAppointment.endTime}
+                      {new Date(selectedAppointment.start_time).toLocaleDateString()} • {selectedAppointment.startTime}{" "}
+                      - {selectedAppointment.endTime}
                     </div>
                   </div>
                 </div>
@@ -424,19 +431,18 @@ export default function AppointmentsView() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-green-50 rounded-lg">
                   <h5 className="font-medium text-green-800 mb-2">Reason for Visit</h5>
-                  <p className="text-green-700">{selectedAppointment.reason}</p>
+                  <p className="text-green-700">{selectedAppointment.reason || "No reason provided"}</p>
                 </div>
 
                 <div className="p-4 bg-green-50 rounded-lg">
-                  <h5 className="font-medium text-green-800 mb-2">AI Health Report</h5>
+                  <h5 className="font-medium text-green-800 mb-2">Doctor Information</h5>
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-yellow-100 text-yellow-700">Attention Required</Badge>
-                      <span className="text-sm text-green-700">Elevated heart rate detected</span>
-                    </div>
-                    <p className="text-sm text-green-700">
-                      Patient's wearable device data shows an average resting heart rate of 92 BPM over the past week,
-                      which is higher than their baseline of 75 BPM.
+                    <p className="text-green-700">
+                      <span className="font-medium">Name:</span> {selectedAppointment.doctor?.name || "Not assigned"}
+                    </p>
+                    <p className="text-green-700">
+                      <span className="font-medium">Specialty:</span>{" "}
+                      {selectedAppointment.doctor?.type || "Not specified"}
                     </p>
                   </div>
                 </div>

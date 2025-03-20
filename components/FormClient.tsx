@@ -89,7 +89,7 @@ export default function FormClient() {
   return (
     <div className="w-full h-full mx-auto ">
       <div className="bg-gradient-to-br from-green-50 to-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="p-4 bg-gradient-to-r from-[#16a07c]/10 to-[#75eea1]/10 border-b">
+        <div className="p-4 border-b">
           <h2 className="text-2xl font-bold text-gray-800">Health Consultation</h2>
           <p className="text-gray-600">Share your symptoms and medical information for analysis</p>
         </div>

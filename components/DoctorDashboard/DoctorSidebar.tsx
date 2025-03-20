@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import axiosInstance from "@/app/axios/instance"
-import { Calendar, Users, FileText, MessageSquare, Settings, HelpCircle, LogOut, BarChart } from "lucide-react"
+import { Calendar, Users, FileText, MessageSquare, Settings, HelpCircle, LogOut, BarChart } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -13,10 +13,12 @@ export default function DoctorSidebar() {
   const pathname = usePathname()
 
   const [doctor, setDoctor] = useState<any>(null)
+  const [appointmentCount, setAppointmentCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Fetch doctor profile
     axiosInstance.get("/me")
       .then((response) => {
         setDoctor(response.data)
@@ -28,14 +30,37 @@ export default function DoctorSidebar() {
       .finally(() => {
         setLoading(false)
       })
+    
+    // Fetch appointment count
+    fetchAppointmentCount()
   }, [])
+
+  // Function to fetch appointment count
+  const fetchAppointmentCount = async () => {
+    try {
+      const response = await axiosInstance.get("/my_appointments")
+      // Count only upcoming appointments
+      const upcomingAppointments = response.data.filter(
+        (appointment: any) => appointment.status === "upcoming"
+      )
+      setAppointmentCount(upcomingAppointments.length)
+    } catch (err) {
+      console.error("Error fetching appointment count:", err)
+    }
+  }
 
   const handleLogout = () => {
     router.push("/login")
   }
 
+  // Create nav items with dynamic appointment count
   const navItems = [
-    { name: "Appointments", icon: Calendar, path: "/doctor/appointments", badge: 3 },
+    { 
+      name: "Appointments", 
+      icon: Calendar, 
+      path: "/doctor/appointments", 
+      badge: appointmentCount > 0 ? appointmentCount : null 
+    },
     { name: "Patients", icon: Users, path: "/doctor/patients" },
     { name: "Medical Records", icon: FileText, path: "/doctor/records" },
     { name: "Analysis", icon: BarChart, path: "/doctor/analysis"},
@@ -97,7 +122,11 @@ export default function DoctorSidebar() {
             >
               <Icon className="h-5 w-5 mr-3" />
               {name}
-              {badge && <Badge className="ml-auto bg-green-500">{badge}</Badge>}
+              {badge && (
+                <Badge className="ml-auto bg-green-500 ">
+                  {badge}
+                </Badge>
+              )}
             </Button>
           ))}
         </div>

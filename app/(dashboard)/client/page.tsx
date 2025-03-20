@@ -179,7 +179,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
 
   return (
     <div >
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center b">
         <div className="pb-4 ">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Welcome back, {userData.name}</h1>
           <p className="text-gray-600 mt-1">Here's an overview of your health</p>
