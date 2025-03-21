@@ -111,7 +111,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="h-full py-6 bg-gradient-to-b from-green-50 to-white">
+    <div className="h-full py-6 bg-gradient-to-b from-green-50 to-white  pt-[80px]">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6">

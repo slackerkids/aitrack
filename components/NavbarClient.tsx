@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   Leaf,
+  MessageCircleMore,
 } from "lucide-react";
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
@@ -110,8 +111,9 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ onLogout, currentPath = "" 
           <div className="hidden md:block">
             <ul className="flex space-x-6 items-center">
               <NavItem href="/client" icon={Home} label="Home" currentPath={currentPath} />
-              <NavItem href="/client/diagnosis" icon={Stethoscope} label="Diagnosis" currentPath={currentPath} />
               <NavItem href="/client/appointment" icon={CalendarClock} label="Appointment" currentPath={currentPath} />
+              <NavItem href="/client/diagnosis" icon={Stethoscope} label="Diagnosis" currentPath={currentPath} />
+              <NavItem href="/client/chat" icon={MessageCircleMore} label="Chat" currentPath={currentPath} />
               <NavItem href="/client/analysis" icon={BarChartBig} label="Analysis" currentPath={currentPath} />
             </ul>
           </div>

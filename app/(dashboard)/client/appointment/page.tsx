@@ -152,7 +152,7 @@ const CreateAppointment = () => {
   })
 
   return (
-    <div className="h-full bg-gradient-to-b from-green-50 to-white">
+    <div className="h-full bg-gradient-to-b from-green-50 to-white pt-[60px]">
       <div className="container mx-auto px-4 py-8 max-w-7xl min-h-[calc(100vh-4rem)]">
         <div className="flex flex-col h-full">
           <div className="mb-4">

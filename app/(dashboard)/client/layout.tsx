@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <div>
       <NavbarClient />
-      <div className="pt-[60px] v-[100%] h-[100%] ">
+      <div className=" v-[100%] h-[100%] ">
         {children}
       </div>
     </div>
