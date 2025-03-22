@@ -20,6 +20,7 @@ import {
   Plus,
   ArrowUpRight,
   Leaf,
+  Video,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -40,6 +41,8 @@ interface Appointment {
   end_time: string;
   doctor: Doctor;
   status: "upcoming" | "past";
+  appointment_type?: "online" | "in-person";
+  meeting_link?: string;
 }
 
 interface UserData {
@@ -273,7 +276,17 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
                 >
                   Reschedule
                 </Button>
-                <Button className="bg-green-600 hover:bg-green-700 text-white">Join Video Call</Button>
+                
+                {nextAppointment.appointment_type === "online" && nextAppointment.meeting_link ? (
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => window.open(nextAppointment.meeting_link, "_blank")}
+                  >
+                    Join Video Call
+                  </Button>
+                ) : (
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">View Details</Button>
+                )}
               </CardFooter>
             )}
           </Card>
@@ -312,7 +325,14 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
                           </Avatar>
                           <div className="flex-1">
                             <h4 className="text-sm font-medium">{appointment.doctor.name}</h4>
-                            <p className="text-xs text-gray-500">{appointment.doctor.type}</p>
+                            <p className="text-xs text-gray-500">
+                              {appointment.doctor.type}
+                              {appointment.appointment_type && (
+                                <Badge className="ml-2 bg-blue-100 text-blue-700 border-blue-200">
+                                  {appointment.appointment_type}
+                                </Badge>
+                              )}
+                            </p>
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-medium">
@@ -322,7 +342,21 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
                               {new Date(appointment.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </p>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-gray-400 ml-2" />
+                          {appointment.appointment_type === "online" && appointment.meeting_link ? (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="ml-2 text-green-600 hover:text-green-700 hover:bg-green-50 p-0 h-8 w-8"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(appointment.meeting_link, "_blank");
+                              }}
+                            >
+                              <ArrowUpRight className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-gray-400 ml-2" />
+                          )}
                         </div>
                       ))}
                     {appointments.filter(app => app.status === "upcoming").length === 0 && (

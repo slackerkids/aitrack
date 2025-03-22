@@ -353,7 +353,7 @@ export default function Dashboard() {
                           </p>
 
                           <textarea
-                            className="w-full h-[300px] p-4 rounded-xl border border-gray-200 focus:border-[#16a07c] focus:ring focus:ring-[#16a07c]/20 transition-all duration-300 resize-none"
+                            className="w-full h-[300px] p-4 rounded-xl border border-gray-200 focus:border-[#16a07c] focus:outline-none focus:border-green-600 focus:bg-white focus:ring-0 focus:ring-offset-0  transition-all duration-300 resize-none"
                             placeholder="Please describe your symptoms in detail. Include when they started, their severity, and any other relevant information that might help with diagnosis."
                             value={symptoms}
                             onChange={(e) => setSymptoms(e.target.value)}

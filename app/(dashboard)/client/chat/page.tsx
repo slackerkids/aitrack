@@ -225,12 +225,12 @@ export default function Dashboard() {
                   >
                     <Avatar className="h-10 w-10 flex-shrink-0">
                       <AvatarFallback style={{ backgroundColor: chat.color }} className="text-white">
-                        {chat.doctor_name.charAt(0)}
+                        {chat.title.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center">
-                        <h3 className="font-medium text-gray-900 truncate">{chat.title}</h3>
+                        <h3 className="font-medium text-gray-900 truncate">{chat.title.replace("-", " ")}</h3>
                         <span className="text-xs text-gray-500">{formatTime(chat.created_at)}</span>
                       </div>
                       <p className="text-sm text-gray-500 truncate">{chat.last_message}</p>
@@ -264,7 +264,7 @@ export default function Dashboard() {
               <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback style={{ backgroundColor: selectedChat.color }} className="text-white">
-                    {selectedChat.doctor_name.charAt(0)}
+                    {selectedChat.title.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -294,7 +294,7 @@ export default function Dashboard() {
                       {msg.role === "bot" && (
                         <Avatar className="h-8 w-8 mt-1">
                           <AvatarFallback style={{ backgroundColor: selectedChat.color }} className="text-white">
-                            {selectedChat.doctor_name.charAt(0)}
+                            {selectedChat.title.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       )}
@@ -326,7 +326,7 @@ export default function Dashboard() {
                           style={{ backgroundColor: selectedChat.color }}
                           className="text-white"
                         >
-                          {selectedChat.doctor_name.charAt(0)}
+                          {selectedChat.title.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div>

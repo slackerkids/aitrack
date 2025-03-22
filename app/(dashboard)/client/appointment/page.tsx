@@ -2,20 +2,27 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, User, MapPin, Search, CalendarIcon } from "lucide-react"
+import { ArrowLeft, User, MapPin, Search, CalendarIcon, Video, Users } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import axiosInstance from "@/app/axios/instance"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
+import axiosInstance from "@/app/axios/instance"
 
 interface Doctor {
   id: number
@@ -38,6 +45,9 @@ const CreateAppointment = () => {
   const [timeSlot, setTimeSlot] = useState<string>("")
   const [searchQuery, setSearchQuery] = useState("")
   const [specialtyFilter, setSpecialtyFilter] = useState("")
+  const [appointmentType, setAppointmentType] = useState<"online" | "in-person">("online")
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const timeSlots = [
     "09:00 AM",
@@ -54,7 +64,7 @@ const CreateAppointment = () => {
     "03:30 PM",
   ]
 
-  const specialties  = ["Dermatologist", "Therapist", "Cardiologist", "Neurologist", "Pediatrician"]
+  const specialties = ["Dermatologist", "Therapist", "Cardiologist", "Neurologist", "Pediatrician"]
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -89,6 +99,8 @@ const CreateAppointment = () => {
       return
     }
 
+    setIsSubmitting(true)
+
     try {
       // Parse the time slot to create a proper datetime
       const [time, period] = timeSlot.split(" ")
@@ -111,11 +123,11 @@ const CreateAppointment = () => {
       // Format dates in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)
       const formatDate = (date: Date) => {
         const year = date.getFullYear()
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const day = String(date.getDate()).padStart(2, '0')
-        const hours = String(date.getHours()).padStart(2, '0')
-        const minutes = String(date.getMinutes()).padStart(2, '0')
-        const seconds = String(date.getSeconds()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, "0")
+        const day = String(date.getDate()).padStart(2, "0")
+        const hours = String(date.getHours()).padStart(2, "0")
+        const minutes = String(date.getMinutes()).padStart(2, "0")
+        const seconds = String(date.getSeconds()).padStart(2, "0")
         return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
       }
 
@@ -126,14 +138,15 @@ const CreateAppointment = () => {
       await axiosInstance.post("/create_appointment/", {
         start_time: startTime,
         end_time: endTimeFormatted,
-        doctor_id: selectedDoctor.id
+        doctor_id: selectedDoctor.id,
+        appointment_type: appointmentType,
       })
 
       toast({
         title: "Success!",
         description: "Appointment created successfully",
       })
-      
+
       router.push("/client")
     } catch (error: any) {
       console.error("Error creating appointment:", error)
@@ -142,7 +155,22 @@ const CreateAppointment = () => {
         description: error.response?.data?.detail || "Failed to create appointment. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      setIsSubmitting(false)
+      setShowConfirmDialog(false)
     }
+  }
+
+  const openConfirmDialog = () => {
+    if (!selectedDoctor || !date || !timeSlot) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a doctor, date, and time slot",
+        variant: "destructive",
+      })
+      return
+    }
+    setShowConfirmDialog(true)
   }
 
   const filteredDoctors = doctors.filter((doctor) => {
@@ -388,44 +416,36 @@ const CreateAppointment = () => {
                         </div>
                       </div>
 
-                      {/* Appointment Summary */}
-                      {date && timeSlot && (
-                        <Card className="bg-gradient-to-r from-green-50 to-white border-0 mb-6 overflow-hidden shadow-sm">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-lg text-gray-800">Appointment Summary</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-3">
-                              <div className="flex justify-between items-center py-1 border-b border-green-100">
-                                <span className="text-gray-600">Doctor:</span>
-                                <span className="font-medium text-gray-800">{selectedDoctor.name}</span>
-                              </div>
-                              <div className="flex justify-between items-center py-1 border-b border-green-100">
-                                <span className="text-gray-600">Specialty:</span>
-                                <span className="font-medium text-gray-800">{selectedDoctor.doctor_type}</span>
-                              </div>
-                              <div className="flex justify-between items-center py-1 border-b border-green-100">
-                                <span className="text-gray-600">Date:</span>
-                                <span className="font-medium text-gray-800">{format(date, "PPP")}</span>
-                              </div>
-                              <div className="flex justify-between items-center py-1 border-b border-green-100">
-                                <span className="text-gray-600">Time:</span>
-                                <span className="font-medium text-gray-800">{timeSlot}</span>
-                              </div>
-                              <div className="flex justify-between items-center py-1">
-                                <span className="text-gray-600">Duration:</span>
-                                <span className="font-medium text-gray-800">30 minutes</span>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
+                      {/* Appointment Type Selection */}
+                      <div className="mb-6">
+                        <Label className="block text-sm font-medium text-gray-700 mb-2">Appointment Type</Label>
+                        <RadioGroup
+                          value={appointmentType}
+                          onValueChange={(value) => setAppointmentType(value as "online" | "in-person")}
+                          className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4"
+                        >
+                          <div className="flex items-center space-x-2 bg-white border border-green-200 rounded-md p-3 hover:bg-green-50/50 cursor-pointer">
+                            <RadioGroupItem value="online" id="online" className="text-green-600" />
+                            <Label htmlFor="online" className="flex items-center cursor-pointer">
+                              <Video className="w-4 h-4 mr-2 text-green-600" />
+                              <span>Online Consultation</span>
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2 bg-white border border-green-200 rounded-md p-3 hover:bg-green-50/50 cursor-pointer">
+                            <RadioGroupItem value="in-person" id="in-person" className="text-green-600" />
+                            <Label htmlFor="in-person" className="flex items-center cursor-pointer">
+                              <Users className="w-4 h-4 mr-2 text-green-600" />
+                              <span>In-Person Visit</span>
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
 
                       <div className="flex justify-end">
                         <Button
                           className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
                           disabled={!selectedDoctor || !date || !timeSlot}
-                          onClick={handleSubmit}
+                          onClick={openConfirmDialog}
                         >
                           Confirm Appointment
                         </Button>
@@ -438,6 +458,99 @@ const CreateAppointment = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Your Appointment</DialogTitle>
+            <DialogDescription>Please review your appointment details before confirming.</DialogDescription>
+          </DialogHeader>
+
+          {selectedDoctor && date && timeSlot && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
+                <Avatar className="h-16 w-16 border-2 border-white shadow-sm">
+                  <AvatarImage src={selectedDoctor.avatar} alt={selectedDoctor.name} />
+                  <AvatarFallback className="bg-green-100 text-green-800">
+                    {selectedDoctor.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">{selectedDoctor.name}</h3>
+                  <p className="text-sm text-green-600">{selectedDoctor.doctor_type}</p>
+                  <div className="flex items-center mt-1">
+                    <Badge
+                      className={cn(
+                        "text-xs",
+                        appointmentType === "online"
+                          ? "bg-blue-100 text-blue-700 border-blue-200"
+                          : "bg-purple-100 text-purple-700 border-purple-200",
+                      )}
+                    >
+                      {appointmentType === "online" ? (
+                        <span className="flex items-center">
+                          <Video className="w-3 h-3 mr-1" />
+                          Online
+                        </span>
+                      ) : (
+                        <span className="flex items-center">
+                          <Users className="w-3 h-3 mr-1" />
+                          In-Person
+                        </span>
+                      )}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-sm text-gray-500">Date</p>
+                  <p className="font-medium text-gray-800">{format(date, "PPP")}</p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-sm text-gray-500">Time</p>
+                  <p className="font-medium text-gray-800">{timeSlot}</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-sm text-gray-500">Location</p>
+                <p className="font-medium text-gray-800">
+                  {appointmentType === "online"
+                    ? "Video consultation (link will be sent via email)"
+                    : selectedDoctor.location || "Medical Center"}
+                </p>
+              </div>
+
+              <div className="bg-green-50 p-3 rounded-lg border border-green-100">
+                <p className="text-sm text-green-700">
+                  {appointmentType === "online"
+                    ? "Please ensure you have a stable internet connection for your video consultation."
+                    : "Please arrive 15 minutes before your appointment time."}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-3">
+            <Button variant="outline" onClick={() => setShowConfirmDialog(false)} className="sm:w-auto w-full">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              className="bg-green-600 hover:bg-green-700 sm:w-auto w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Processing..." : "Confirm Booking"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
