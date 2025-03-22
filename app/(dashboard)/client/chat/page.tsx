@@ -8,196 +8,88 @@ import ReactMarkdown from "react-markdown"
 import {
   Search,
   Plus,
-  Bot,
   User,
   Send,
   ArrowLeft,
   Paperclip,
-  Heart,
-  Brain,
-  Activity,
-  Pill,
-  Stethoscope,
   MessageSquare,
-  Clock,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
-type Message = {
-  id: number
-  user_message?: string
-  bot_reply?: string
-  user_id: number
-  created_at?: string
-}
-
-// AI Agent types
-interface Agent {
-  id: string
-  name: string
-  avatar: string
-  role: string
-  description: string
-  specialty: string
-  icon: React.ElementType
-  color: string
-  active?: boolean
-}
-
-// Chat session type
+// Update the interfaces to match API response
 interface ChatSession {
-  id: string
-  agentId: string
-  title: string
-  lastMessage: string
-  lastMessageTime: Date
-  unread: number
-  symptoms?: string
-  color?: string
-}
-
-// Request type from API
-interface ChatRequest {
+  chat_id: number
+  request_id: number
   title: string
   color: string
-  createdAt: string
-  symptoms: string
-  response: string
+  doctor_name: string
+  created_at: string
+  last_message: string
+}
+
+interface ChatMessage {
+  role: string
+  text: string
+}
+
+interface ChatDetail {
+  chat_id: number
+  request_id: number
+  doctor_name: string
+  title: string
+  color: string
+  created_at: string
+  chat_history: ChatMessage[]
 }
 
 export default function Dashboard() {
   const [prompt, setPrompt] = useState<string>("")
-  const [messages, setMessages] = useState<Message[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
+  const [selectedChat, setSelectedChat] = useState<ChatDetail | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false)
   const [isLoadingChats, setIsLoadingChats] = useState<boolean>(true)
-  const [selectedChatColor, setSelectedChatColor] = useState<string | null>(null)
 
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
-  // Sample AI agents
-  const agents: Agent[] = [
-    {
-      id: "general-md",
-      name: "Dr. Health AI",
-      avatar: "/placeholder.svg?height=80&width=80",
-      role: "General Practitioner",
-      description: "Your primary healthcare assistant for general medical advice and triage.",
-      specialty: "General Medicine",
-      icon: Stethoscope,
-      color: "#16a07c",
-      active: true,
-    },
-    {
-      id: "cardio-md",
-      name: "CardioBot",
-      avatar: "/placeholder.svg?height=80&width=80",
-      role: "Cardiology Assistant",
-      description: "Specialized in heart health, cardiovascular conditions, and preventive care.",
-      specialty: "Cardiology",
-      icon: Heart,
-      color: "#e05252",
-    },
-    {
-      id: "neuro-md",
-      name: "NeuroAssist",
-      avatar: "/placeholder.svg?height=80&width=80",
-      role: "Neurology Assistant",
-      description: "Focused on neurological conditions, brain health, and cognitive function.",
-      specialty: "Neurology",
-      icon: Brain,
-      color: "#5271e0",
-    },
-    {
-      id: "wellness-md",
-      name: "WellnessGuide",
-      avatar: "/placeholder.svg?height=80&width=80",
-      role: "Wellness Coach",
-      description: "Helps with lifestyle, nutrition, fitness, and preventive health measures.",
-      specialty: "Wellness",
-      icon: Activity,
-      color: "#e0cb52",
-    },
-    {
-      id: "pharma-md",
-      name: "MedInfoBot",
-      avatar: "/placeholder.svg?height=80&width=80",
-      role: "Medication Information",
-      description: "Provides information about medications, side effects, and interactions.",
-      specialty: "Pharmacology",
-      icon: Pill,
-      color: "#9952e0",
-    },
-  ]
-
-  // Fetch chat requests from API
+  // Fetch chat sessions from API
   useEffect(() => {
-    const fetchChatRequests = async () => {
+    const fetchChatSessions = async () => {
       setIsLoadingChats(true)
       try {
-        const response = await axiosInstance.get("/my_requests")
-        const chatRequests: ChatRequest[] = response.data
-
-        // Transform chat requests into chat sessions
-        const sessions: ChatSession[] = chatRequests.map((req, index) => {
-          // Assign a random agent for each chat
-          const randomAgentIndex = Math.floor(Math.random() * agents.length)
-          const agent = agents[randomAgentIndex]
-
-          return {
-            id: `chat-${index + 1}`,
-            agentId: agent.id,
-            title: req.title,
-            lastMessage: "Continue your consultation...",
-            lastMessageTime: new Date(req.createdAt),
-            unread: Math.floor(Math.random() * 2), // Random unread count (0 or 1)
-            symptoms: req.symptoms,
-            color: req.color,
-          }
-        })
-
-        setChatSessions(sessions)
-
-        // Set the default selected agent
-        if (sessions.length > 0) {
-          const firstSession = sessions[0]
-          const agent = agents.find((a) => a.id === firstSession.agentId)
-          setSelectedAgent(agent || agents.find((agent) => agent.active) || agents[0])
-          setSelectedChatColor(firstSession.color || null)
-
-          // Fetch messages for this chat
-          fetchMessages()
-        } else {
-          // If no chat sessions, set default agent
-          setSelectedAgent(agents.find((agent) => agent.active) || agents[0])
+        const response = await axiosInstance.get("/my_chats")
+        setChatSessions(response.data)
+        
+        // If chats exist, load the first one by default
+        if (response.data.length > 0) {
+          loadChatDetail(response.data[0].chat_id)
         }
       } catch (error) {
-        console.error("Error fetching chat requests:", error)
-        // Fallback to default agent if API call fails
-        setSelectedAgent(agents.find((agent) => agent.active) || agents[0])
+        console.error("Error fetching chats:", error)
       } finally {
         setIsLoadingChats(false)
       }
     }
 
-    fetchChatRequests()
+    fetchChatSessions()
   }, [])
 
-  // Fetch messages from API
-  const fetchMessages = async () => {
+  // Load chat detail by ID
+  const loadChatDetail = async (chatId: number) => {
+    setIsLoading(true)
     try {
-      const response = await axiosInstance.get("/messages")
-      setMessages(response.data)
+      const response = await axiosInstance.get(`/chat/${chatId}`)
+      setSelectedChat(response.data)
     } catch (error) {
-      console.error("Error fetching messages:", error)
+      console.error(`Error fetching chat ${chatId}:`, error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -206,43 +98,49 @@ export default function Dashboard() {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" })
     }
-  }, [messages])
+  }, [selectedChat])
 
   // Handle sending a message
   const handlePromptSend = async () => {
-    if (prompt.trim()) {
-      const newMessage: Message = {
-        id: Date.now(),
-        user_message: prompt,
-        user_id: 1,
-        created_at: new Date().toISOString(),
+    if (prompt.trim() && selectedChat) {
+      // Add user message to chat history
+      const userMessage: ChatMessage = {
+        role: "user",
+        text: prompt
       }
-
-      // Add user message to chat
-      setMessages((prev) => [...prev, newMessage])
+      
+      setSelectedChat({
+        ...selectedChat,
+        chat_history: [...selectedChat.chat_history, userMessage]
+      })
+      
       setPrompt("")
       setIsLoading(true)
 
       try {
-        const response = await axiosInstance.post("/chatbot", {
-          user_message: prompt,
+        // Using the correct endpoint and request format
+        const response = await axiosInstance.post(`/chatbot/${selectedChat.chat_id}`, {
+          user_message: prompt
         })
-
-        const botReply: string = response.data.bot_reply
 
         // Add bot reply after a short delay
         setTimeout(() => {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now() + 1,
-              bot_reply: botReply,
-              user_id: 2,
-              created_at: new Date().toISOString(),
-            },
-          ])
+          if (response.data && response.data.bot_reply) {
+            const botReply: ChatMessage = {
+              role: "bot",
+              text: response.data.bot_reply
+            }
+            
+            setSelectedChat(prev => {
+              if (!prev) return null
+              return {
+                ...prev,
+                chat_history: [...prev.chat_history, botReply]
+              }
+            })
+          }
           setIsLoading(false)
-        }, 500)
+        }, 100)
       } catch (error) {
         console.error("Error sending message:", error)
         setIsLoading(false)
@@ -267,36 +165,10 @@ export default function Dashboard() {
     }
   }
 
-  // Start a new chat with an agent
-  const startNewChat = (agent: Agent) => {
-    setSelectedAgent(agent)
-    setSelectedChatColor(null)
-    setMessages([
-      {
-        id: Date.now(),
-        bot_reply: `Hello! I'm ${agent.name}, your ${agent.role}. How can I help you today?`,
-        user_id: 2,
-        created_at: new Date().toISOString(),
-      },
-    ])
-    setIsMobileMenuOpen(false)
-  }
-
   // Load chat session
   const loadChatSession = (session: ChatSession) => {
-    const agent = agents.find((a) => a.id === session.agentId)
-    if (agent) {
-      setSelectedAgent(agent)
-      setSelectedChatColor(session.color || null)
-
-      // Fetch messages for this chat
-      fetchMessages()
-
-      // Mark as read
-      setChatSessions((prev) => prev.map((chat) => (chat.id === session.id ? { ...chat, unread: 0 } : chat)))
-
-      setIsMobileMenuOpen(false)
-    }
+    loadChatDetail(session.chat_id)
+    setIsMobileMenuOpen(false)
   }
 
   // Format time for display
@@ -316,30 +188,15 @@ export default function Dashboard() {
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-b from-green-50 to-white overflow-hidden">
-      {/* Header for mobile */}
-      <div className="md:hidden h-16 border-b border-green-100 flex items-center justify-between px-4 bg-white">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/")}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h2 className="font-medium text-gray-900">Health AI Chat</h2>
-        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          <MessageSquare className="h-5 w-5" />
-        </Button>
-      </div>
-
       <div className="flex-1 flex overflow-hidden">
         {/* Custom Sidebar - No shadcn dependency */}
         <div
-          className={`w-80 border-r border-green-100 bg-white flex-shrink-0 flex flex-col ${
+          className={`w-80 border-r border-green-100 bg-white flex-shrink-0 pt-14 flex flex-col ${
             isMobileMenuOpen ? "block" : "hidden"
-          } md:block z-20`}
+          } md:block z-20 `}
         >
           {/* Sidebar Header */}
           <div className="p-4 border-b border-green-100">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Health AI Chat</h2>
-              <Badge className="bg-green-600">Beta</Badge>
-            </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
@@ -358,54 +215,43 @@ export default function Dashboard() {
               </div>
             ) : chatSessions.length > 0 ? (
               <div className="space-y-1">
-                {chatSessions.map((chat) => {
-                  const agent = agents.find((a) => a.id === chat.agentId)
-                  if (!agent) return null
-
-                  return (
-                    <div
-                      key={chat.id}
-                      className={`flex items-center gap-3 p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
-                        selectedAgent?.id === agent.id ? "bg-green-50 border-l-4 border-green-500" : ""
-                      }`}
-                      onClick={() => loadChatSession(chat)}
-                    >
-                      <Avatar className="h-10 w-10 flex-shrink-0">
-                        <AvatarImage src={agent.avatar} alt={agent.name} />
-                        <AvatarFallback style={{ backgroundColor: chat.color || agent.color }} className="text-white">
-                          {agent.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-medium text-gray-900 truncate">{chat.title || agent.name}</h3>
-                          <span className="text-xs text-gray-500">{formatTime(chat.lastMessageTime)}</span>
-                        </div>
-                        <p className="text-sm text-gray-500 truncate">{chat.lastMessage}</p>
+                {chatSessions.map((chat) => (
+                  <div
+                    key={chat.chat_id}
+                    className={`flex items-center gap-3 p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
+                      selectedChat?.chat_id === chat.chat_id ? "bg-green-50 border-l-4 border-green-500" : ""
+                    }`}
+                    onClick={() => loadChatSession(chat)}
+                  >
+                    <Avatar className="h-10 w-10 flex-shrink-0">
+                      <AvatarFallback style={{ backgroundColor: chat.color }} className="text-white">
+                        {chat.doctor_name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-medium text-gray-900 truncate">{chat.title}</h3>
+                        <span className="text-xs text-gray-500">{formatTime(chat.created_at)}</span>
                       </div>
-                      {chat.unread > 0 && (
-                        <Badge className="bg-green-600 h-5 w-5 flex items-center justify-center p-0 rounded-full">
-                          {chat.unread}
-                        </Badge>
-                      )}
+                      <p className="text-sm text-gray-500 truncate">{chat.last_message}</p>
                     </div>
-                  )
-                })}
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-40 p-4 text-center">
-                <Bot className="h-10 w-10 text-gray-300 mb-2" />
+                <MessageSquare className="h-10 w-10 text-gray-300 mb-2" />
                 <h3 className="text-base font-medium text-gray-700">No conversations yet</h3>
-                <p className="text-sm text-gray-500 mt-1">Start a chat with one of our AI health agents</p>
+                <p className="text-sm text-gray-500 mt-1">Your consultations will appear here</p>
               </div>
             )}
           </div>
 
           {/* Sidebar Footer */}
-          <div className="p-4 border-t border-green-100 bg-gray-50">
-            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => startNewChat(agents[0])}>
+          <div className="p-4 border-t border-green-100">
+            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => router.push("/client/appointment")}>
               <Plus className="h-4 w-4 mr-2" />
-              New Conversation
+              New Appointment
             </Button>
           </div>
         </div>
@@ -413,26 +259,22 @@ export default function Dashboard() {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col">
           {/* Chat Header */}
-          {selectedAgent && (
+          {selectedChat && (
             <div className="hidden md:flex h-16 border-b border-green-100 items-center justify-between px-4 bg-white">
               <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={selectedAgent.avatar} alt={selectedAgent.name} />
-                  <AvatarFallback
-                    style={{ backgroundColor: selectedChatColor || selectedAgent.color }}
-                    className="text-white"
-                  >
-                    {selectedAgent.name.charAt(0)}
+                  <AvatarFallback style={{ backgroundColor: selectedChat.color }} className="text-white">
+                    {selectedChat.doctor_name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-medium text-gray-900">{selectedAgent.name}</h3>
-                  <p className="text-xs text-gray-500">{selectedAgent.role}</p>
+                  <h3 className="font-medium text-gray-900">{selectedChat.title}</h3>
+                  <p className="text-xs text-gray-500">Doctor: {selectedChat.doctor_name}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-green-700">AI Assistant Online</span>
+                <span className="text-sm font-medium text-green-700">Online</span>
               </div>
             </div>
           )}
@@ -442,25 +284,21 @@ export default function Dashboard() {
             ref={messagesContainerRef}
             className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-green-50/50 to-white"
           >
-            {selectedAgent ? (
+            {selectedChat ? (
               <div className="space-y-4">
-                {messages.map((msg) => (
-                  <div key={msg.id} className={`flex ${msg.user_id === 1 ? "justify-end" : "justify-start"}`}>
+                {selectedChat.chat_history.map((msg, index) => (
+                  <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                     <div
-                      className={`flex items-start gap-3 max-w-[80%] ${msg.user_id === 1 ? "flex-row-reverse" : ""}`}
+                      className={`flex items-start gap-3 max-w-[80%] ${msg.role === "user" ? "flex-row-reverse" : ""}`}
                     >
-                      {msg.user_id === 2 && (
+                      {msg.role === "bot" && (
                         <Avatar className="h-8 w-8 mt-1">
-                          <AvatarImage src={selectedAgent.avatar} alt={selectedAgent.name} />
-                          <AvatarFallback
-                            style={{ backgroundColor: selectedChatColor || selectedAgent.color }}
-                            className="text-white"
-                          >
-                            {selectedAgent.name.charAt(0)}
+                          <AvatarFallback style={{ backgroundColor: selectedChat.color }} className="text-white">
+                            {selectedChat.doctor_name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       )}
-                      {msg.user_id === 1 && (
+                      {msg.role === "user" && (
                         <Avatar className="h-8 w-8 mt-1">
                           <AvatarFallback className="bg-gray-200">
                             <User className="h-4 w-4" />
@@ -470,18 +308,10 @@ export default function Dashboard() {
                       <div>
                         <div
                           className={`p-3 rounded-lg ${
-                            msg.user_id === 1 ? "bg-green-600 text-white" : "bg-white border border-gray-200"
+                            msg.role === "user" ? "bg-green-600 text-white" : "bg-white border border-gray-200"
                           }`}
                         >
-                          <ReactMarkdown className="text-sm">
-                            {msg.user_id === 1
-                              ? msg.user_message || ""
-                              : (msg.bot_reply || "").replace(/12345678!!!/g, "").trim()}
-                          </ReactMarkdown>
-                        </div>
-                        <div className="flex items-center mt-1">
-                          <Clock className="h-3 w-3 text-gray-400 mr-1" />
-                          <span className="text-xs text-gray-500">{formatTime(msg.created_at || new Date())}</span>
+                          <ReactMarkdown className="text-sm">{msg.text}</ReactMarkdown>
                         </div>
                       </div>
                     </div>
@@ -492,12 +322,11 @@ export default function Dashboard() {
                   <div className="flex justify-start">
                     <div className="flex items-start gap-3 max-w-[80%]">
                       <Avatar className="h-8 w-8 mt-1">
-                        <AvatarImage src={selectedAgent.avatar} alt={selectedAgent.name} />
                         <AvatarFallback
-                          style={{ backgroundColor: selectedChatColor || selectedAgent.color }}
+                          style={{ backgroundColor: selectedChat.color }}
                           className="text-white"
                         >
-                          {selectedAgent.name.charAt(0)}
+                          {selectedChat.doctor_name.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -527,22 +356,22 @@ export default function Dashboard() {
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-center p-4">
                 <div className="w-20 h-20 rounded-full bg-green-600/10 flex items-center justify-center mb-4">
-                  <Bot className="h-10 w-10 text-green-600" />
+                  <MessageSquare className="h-10 w-10 text-green-600" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">Welcome to Health AI Chat</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">Your Medical Consultations</h2>
                 <p className="text-gray-600 max-w-md mb-6">
-                  Select an existing conversation or start a new chat with one of our specialized AI health agents.
+                  Select a conversation from the sidebar or book a new appointment to start a consultation.
                 </p>
-                <Button className="bg-green-600 hover:bg-green-700" onClick={() => startNewChat(agents[0])}>
+                <Button className="bg-green-600 hover:bg-green-700" onClick={() => router.push("/client/appointment")}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Start New Conversation
+                  Book New Appointment
                 </Button>
               </div>
             )}
           </div>
 
           {/* Message Input */}
-          {selectedAgent && (
+          {selectedChat && (
             <div className="p-4 border-t border-green-100 bg-white">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
@@ -550,7 +379,7 @@ export default function Dashboard() {
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="w-full p-3 pr-12 border border-gray-200 rounded-md resize-none focus:border-green-600 focus:ring focus:ring-green-600/20 min-h-[44px] max-h-[120px]"
+                    className="w-full p-3 pr-12 border border-gray-200 rounded-md resize-none focus:outline-none focus:border-green-600 focus:bg-white focus:ring-0 focus:ring-offset-0 min-h-[44px] max-h-[120px]"
                     placeholder="Type your message..."
                     rows={1}
                   />
@@ -576,7 +405,7 @@ export default function Dashboard() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                AI responses are for informational purposes only and should not replace professional medical advice.
+                Your consultation history with healthcare professionals.
               </p>
             </div>
           )}
