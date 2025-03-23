@@ -1,711 +1,668 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import type React from "react"
+import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import {
-  Activity,
-  TrendingUp,
-  TrendingDown,
-  CheckCircle,
-  Info,
-  Calendar,
+  Upload,
   FileText,
-  BarChart3,
-  History,
-  Download,
-  Share2,
+  Camera,
+  Send,
+  AlertCircle,
+  CheckCircle2,
+  ArrowRight,
+  FileUp,
+  Dna,
+  Microscope,
+  Sparkles,
+  Zap,
+  Brain,
+  Heart,
+  Pill,
+  Loader2,
 } from "lucide-react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import BloodAnalysis from "./blood-analysis"
 
-// Sample blood test data
-const bloodTestData = {
-  current: {
-    date: "2023-10-15",
-    markers: [
-      {
-        id: 1,
-        name: "Hemoglobin",
-        value: 14.2,
-        unit: "g/dL",
-        normalRange: "13.5-17.5",
-        status: "normal",
-        change: "+0.3",
-        description: "Protein in red blood cells that carries oxygen throughout the body",
-        recommendations: "Your hemoglobin levels are within normal range, indicating good oxygen-carrying capacity.",
-      },
-      {
-        id: 2,
-        name: "White Blood Cells",
-        value: 6.8,
-        unit: "10³/µL",
-        normalRange: "4.5-11.0",
-        status: "normal",
-        change: "-0.2",
-        description: "Cells that help fight infections and other diseases",
-        recommendations: "Your white blood cell count is normal, suggesting a healthy immune system.",
-      },
-      {
-        id: 3,
-        name: "Platelets",
-        value: 140,
-        unit: "10³/µL",
-        normalRange: "150-450",
-        status: "low",
-        change: "-15",
-        description: "Cell fragments that help with blood clotting",
-        recommendations:
-          "Your platelet count is slightly below the normal range. Consider discussing with your healthcare provider.",
-      },
-      {
-        id: 4,
-        name: "Glucose",
-        value: 105,
-        unit: "mg/dL",
-        normalRange: "70-99",
-        status: "high",
-        change: "+8",
-        description: "Sugar in the blood that provides energy to cells",
-        recommendations:
-          "Your glucose level is elevated. Consider dietary changes and regular exercise to help manage blood sugar levels.",
-      },
-      {
-        id: 5,
-        name: "Cholesterol (Total)",
-        value: 185,
-        unit: "mg/dL",
-        normalRange: "125-200",
-        status: "normal",
-        change: "-10",
-        description: "Fatty substance found in the blood",
-        recommendations:
-          "Your total cholesterol is within normal range. Continue maintaining a healthy diet and regular exercise.",
-      },
-      {
-        id: 6,
-        name: "HDL Cholesterol",
-        value: 62,
-        unit: "mg/dL",
-        normalRange: ">40",
-        status: "normal",
-        change: "+4",
-        description: "Good cholesterol that helps remove other forms of cholesterol from the bloodstream",
-        recommendations: "Your HDL cholesterol is at a healthy level, which helps protect against heart disease.",
-      },
-      {
-        id: 7,
-        name: "LDL Cholesterol",
-        value: 110,
-        unit: "mg/dL",
-        normalRange: "<100",
-        status: "high",
-        change: "-5",
-        description: "Bad cholesterol that can build up in your arteries",
-        recommendations:
-          "Your LDL cholesterol is slightly elevated. Consider dietary changes to reduce saturated fat intake.",
-      },
-      {
-        id: 8,
-        name: "Triglycerides",
-        value: 120,
-        unit: "mg/dL",
-        normalRange: "<150",
-        status: "normal",
-        change: "-15",
-        description: "Type of fat found in the blood",
-        recommendations: "Your triglyceride levels are within normal range. Continue maintaining a healthy lifestyle.",
-      },
-    ],
-  },
-  history: [
-    {
-      date: "2023-07-15",
-      markers: [
-        { id: 1, name: "Hemoglobin", value: 13.9, unit: "g/dL" },
-        { id: 2, name: "White Blood Cells", value: 7.0, unit: "10³/µL" },
-        { id: 3, name: "Platelets", value: 155, unit: "10³/µL" },
-        { id: 4, name: "Glucose", value: 97, unit: "mg/dL" },
-        { id: 5, name: "Cholesterol (Total)", value: 195, unit: "mg/dL" },
-        { id: 6, name: "HDL Cholesterol", value: 58, unit: "mg/dL" },
-        { id: 7, name: "LDL Cholesterol", value: 115, unit: "mg/dL" },
-        { id: 8, name: "Triglycerides", value: 135, unit: "mg/dL" },
-      ],
-    },
-    {
-      date: "2023-04-10",
-      markers: [
-        { id: 1, name: "Hemoglobin", value: 14.0, unit: "g/dL" },
-        { id: 2, name: "White Blood Cells", value: 6.5, unit: "10³/µL" },
-        { id: 3, name: "Platelets", value: 160, unit: "10³/µL" },
-        { id: 4, name: "Glucose", value: 95, unit: "mg/dL" },
-        { id: 5, name: "Cholesterol (Total)", value: 190, unit: "mg/dL" },
-        { id: 6, name: "HDL Cholesterol", value: 55, unit: "mg/dL" },
-        { id: 7, name: "LDL Cholesterol", value: 120, unit: "mg/dL" },
-        { id: 8, name: "Triglycerides", value: 140, unit: "mg/dL" },
-      ],
-    },
-  ],
-}
+export default function AnalysisPage() {
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [pdfName, setPdfName] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
+  const [analysisReady, setAnalysisReady] = useState<boolean>(false)
+  const [activeTab, setActiveTab] = useState<string>("upload")
+  const [processingStage, setProcessingStage] = useState<number>(0)
+  const [processingText, setProcessingText] = useState<string>("Initializing analysis...")
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const router = useRouter()
 
-export default function BloodAnalysis() {
-  const [selectedMarker, setSelectedMarker] = useState<any>(null)
-  const [filterStatus, setFilterStatus] = useState<string>("all")
-  const [isLoaded, setIsLoaded] = useState(false)
-
+  // Simulate upload progress
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true)
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
+    if (isLoading && uploadProgress < 90) {
+      const timer = setTimeout(() => {
+        setUploadProgress((prev) => Math.min(prev + Math.random() * 15, 90))
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [isLoading, uploadProgress])
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "normal":
-        return "bg-green-100 text-green-800 border-green-200"
-      case "low":
-        return "bg-amber-100 text-amber-800 border-amber-200"
-      case "high":
-        return "bg-red-100 text-red-800 border-red-200"
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+  // Processing stages text
+  useEffect(() => {
+    if (isLoading) {
+      const stages = [
+        "Initializing analysis...",
+        "Extracting data from documents...",
+        "Identifying blood markers...",
+        "Comparing with reference ranges...",
+        "Generating health insights...",
+        "Creating personalized recommendations...",
+        "Finalizing your health report...",
+      ]
+
+      let currentStage = 0
+      const interval = setInterval(() => {
+        if (currentStage < stages.length - 1 && uploadProgress > (currentStage + 1) * 15) {
+          currentStage++
+          setProcessingStage(currentStage)
+          setProcessingText(stages[currentStage])
+        }
+
+        if (uploadProgress >= 90) {
+          setProcessingStage(stages.length - 1)
+          setProcessingText(stages[stages.length - 1])
+          clearInterval(interval)
+        }
+      }, 2000)
+
+      return () => clearInterval(interval)
+    }
+  }, [isLoading, uploadProgress])
+
+  // DNA animation
+  useEffect(() => {
+    if (isLoading && canvasRef.current) {
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return
+
+      canvas.width = canvas.clientWidth
+      canvas.height = canvas.clientHeight
+
+      const particles: any[] = []
+      const colors = ["#16a07c", "#75eea1", "#3498db", "#f1c40f"]
+      const particleCount = 100
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 3 + 1,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          speedX: (Math.random() - 0.5) * 2,
+          speedY: (Math.random() - 0.5) * 2,
+          opacity: Math.random() * 0.5 + 0.5,
+        })
+      }
+
+      let animationFrame: number
+
+      const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+        // Draw DNA helix
+        const time = Date.now() * 0.001
+        const amplitude = 50
+        const frequency = 0.05
+        const spacing = 15
+
+        ctx.strokeStyle = "#16a07c"
+        ctx.lineWidth = 2
+
+        // First strand
+        ctx.beginPath()
+        for (let x = 0; x < canvas.width; x += 5) {
+          const y = canvas.height / 2 + Math.sin(x * frequency + time) * amplitude
+          if (x === 0) {
+            ctx.moveTo(x, y)
+          } else {
+            ctx.lineTo(x, y)
+          }
+        }
+        ctx.stroke()
+
+        // Second strand
+        ctx.beginPath()
+        for (let x = 0; x < canvas.width; x += 5) {
+          const y = canvas.height / 2 + Math.sin(x * frequency + time + Math.PI) * amplitude
+          if (x === 0) {
+            ctx.moveTo(x, y)
+          } else {
+            ctx.lineTo(x, y)
+          }
+        }
+        ctx.stroke()
+
+        // Connecting lines
+        for (let x = 0; x < canvas.width; x += spacing) {
+          const y1 = canvas.height / 2 + Math.sin(x * frequency + time) * amplitude
+          const y2 = canvas.height / 2 + Math.sin(x * frequency + time + Math.PI) * amplitude
+
+          ctx.beginPath()
+          ctx.moveTo(x, y1)
+          ctx.lineTo(x, y2)
+          ctx.strokeStyle = `rgba(22, 160, 124, ${0.3 + Math.sin(x * frequency + time) * 0.2})`
+          ctx.stroke()
+        }
+
+        // Draw particles
+        particles.forEach((particle) => {
+          ctx.beginPath()
+          ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
+          ctx.fillStyle =
+            particle.color +
+            Math.floor(particle.opacity * 255)
+              .toString(16)
+              .padStart(2, "0")
+          ctx.fill()
+
+          particle.x += particle.speedX
+          particle.y += particle.speedY
+
+          // Bounce off edges
+          if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1
+          if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1
+
+          // Random opacity changes
+          particle.opacity += (Math.random() - 0.5) * 0.02
+          if (particle.opacity < 0.2) particle.opacity = 0.2
+          if (particle.opacity > 0.8) particle.opacity = 0.8
+        })
+
+        animationFrame = requestAnimationFrame(animate)
+      }
+
+      animate()
+
+      return () => cancelAnimationFrame(animationFrame)
+    }
+  }, [isLoading])
+
+  const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setPdfFile(file)
+      setPdfName(file.name)
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "normal":
-        return <CheckCircle className="h-4 w-4 text-green-600" />
-      case "low":
-        return <TrendingDown className="h-4 w-4 text-amber-600" />
-      case "high":
-        return <TrendingUp className="h-4 w-4 text-red-600" />
-      default:
-        return <Info className="h-4 w-4 text-gray-600" />
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
     }
   }
 
-  const getChangeIcon = (change: string) => {
-    if (change.startsWith("+")) {
-      return <TrendingUp className="h-4 w-4 text-red-600" />
-    } else if (change.startsWith("-")) {
-      return <TrendingDown className="h-4 w-4 text-green-600" />
-    }
-    return null
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setUploadProgress(0)
+    setProcessingStage(0)
+    setProcessingText("Initializing analysis...")
+
+    // Simulate processing
+    setTimeout(() => {
+      setUploadProgress(100)
+
+      setTimeout(() => {
+        setIsLoading(false)
+        setAnalysisReady(true)
+      }, 1000)
+    }, 12000) // Longer processing time to show the animation
   }
 
-  const filteredMarkers = bloodTestData.current.markers.filter((marker) => {
-    if (filterStatus === "all") return true
-    return marker.status === filterStatus
-  })
+  if (analysisReady) {
+    return <BloodAnalysis />
+  }
 
-  const abnormalCount = bloodTestData.current.markers.filter((marker) => marker.status !== "normal").length
-  const normalCount = bloodTestData.current.markers.filter((marker) => marker.status === "normal").length
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white flex flex-col items-center justify-center relative overflow-hidden">
+        {/* Background canvas for DNA animation */}
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-30" />
 
-  return (
-    <div
-      className={`min-h-screen bg-gradient-to-b from-green-50 to-white transition-opacity duration-500 ${isLoaded ? "opacity-100" : "opacity-0"}`}
-    >
-      <div className="container mx-auto px-6 py-8 pt-[80px]">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Blood Analysis</h1>
-          <p className="text-gray-600">Comprehensive analysis of your blood test results with personalized insights</p>
+        {/* Floating icons */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[Dna, Microscope, Heart, Brain, Pill, Zap].map((Icon, index) => (
+            <div
+              key={index}
+              className="absolute animate-float"
+              style={{
+                left: `${Math.random() * 90}%`,
+                top: `${Math.random() * 90}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                opacity: 0.1 + Math.random() * 0.2,
+              }}
+            >
+              <Icon size={30 + Math.random() * 40} />
+            </div>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Summary and Filters */}
-          <div className="space-y-6">
-            <Card className="border-0 shadow-md overflow-hidden">
-              <CardHeader className="pb-2 border-b border-green-100 bg-white">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-xl text-gray-800">Test Summary</CardTitle>
-                  <Badge className="bg-green-600">{bloodTestData.current.date}</Badge>
-                </div>
-                <CardDescription>Overview of your latest blood test results</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Activity className="h-5 w-5 text-green-600 mr-2" />
-                      <span className="font-medium text-gray-700">Overall Health Score</span>
-                    </div>
-                    <Badge className="bg-green-600">85/100</Badge>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Health Indicators</span>
-                      <span className="text-green-600 font-medium">
-                        {normalCount} of {bloodTestData.current.markers.length} normal
-                      </span>
-                    </div>
-                    <Progress
-                      value={(normalCount / bloodTestData.current.markers.length) * 100}
-                      className="h-2 bg-gray-100"
-                      indicatorClassName="bg-green-600"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="bg-green-50 rounded-lg p-3 text-center">
-                      <div className="text-2xl font-bold text-green-600">{normalCount}</div>
-                      <div className="text-xs text-gray-600">Normal</div>
-                    </div>
-                    <div className="bg-red-50 rounded-lg p-3 text-center">
-                      <div className="text-2xl font-bold text-red-600">{abnormalCount}</div>
-                      <div className="text-xs text-gray-600">Abnormal</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="bg-gray-50 border-t border-gray-100 flex justify-between">
-                <div className="flex items-center text-sm text-gray-600">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>Last updated: {bloodTestData.current.date}</span>
-                </div>
-                <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-50 p-0">
-                  <FileText className="h-4 w-4 mr-1" />
-                  View PDF
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="border-0 shadow-md overflow-hidden">
-              <CardHeader className="pb-2 border-b border-green-100">
-                <CardTitle className="text-lg text-gray-800">Filter Results</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
-                      <SelectTrigger className="border-green-200 focus:ring-green-300 bg-white">
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Results</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="low">Low</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Test Date</label>
-                    <Select defaultValue={bloodTestData.current.date}>
-                      <SelectTrigger className="border-green-200 focus:ring-green-300 bg-white">
-                        <SelectValue placeholder="Select test date" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={bloodTestData.current.date}>
-                          {bloodTestData.current.date} (Latest)
-                        </SelectItem>
-                        {bloodTestData.history.map((test, index) => (
-                          <SelectItem key={index} value={test.date}>
-                            {test.date}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-md overflow-hidden">
-              <CardHeader className="pb-2 border-b border-green-100">
-                <CardTitle className="text-lg text-gray-800">Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="space-y-3">
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Report
-                  </Button>
-                  <Button variant="outline" className="w-full border-green-200 text-green-600 hover:bg-green-50">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share with Doctor
-                  </Button>
-                  <Button variant="outline" className="w-full border-green-200 text-green-600 hover:bg-green-50">
-                    <History className="h-4 w-4 mr-2" />
-                    View History
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="z-10 max-w-md w-full px-4 py-8 pt-[80px]">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#16a07c] to-[#75eea1] mb-4 relative">
+              <Sparkles className="w-10 h-10 text-white animate-pulse" />
+              <div className="absolute inset-0 rounded-full border-4 border-white border-opacity-20 animate-ping"></div>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">Analyzing Your Health</h1>
+            <p className="text-gray-300 max-w-sm mx-auto">
+              Our AI is processing your medical data to provide personalized insights
+            </p>
           </div>
 
-          {/* Right Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="results">
-              <TabsList className="bg-green-50 p-1">
-                <TabsTrigger
-                  value="results"
-                  className="data-[state=active]:bg-white data-[state=active]:text-green-600"
-                >
-                  Test Results
-                </TabsTrigger>
-                <TabsTrigger value="trends" className="data-[state=active]:bg-white data-[state=active]:text-green-600">
-                  Trends
-                </TabsTrigger>
-                <TabsTrigger
-                  value="recommendations"
-                  className="data-[state=active]:bg-white data-[state=active]:text-green-600"
-                >
-                  Recommendations
-                </TabsTrigger>
-              </TabsList>
+          <div className="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700">
+            <div className="mb-6">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-300">{processingText}</span>
+                <span className="text-[#75eea1] font-medium">{Math.round(uploadProgress)}%</span>
+              </div>
+              <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#16a07c] to-[#75eea1] transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            </div>
 
-              <TabsContent value="results" className="mt-4">
-                <Card className="border-0 shadow-md overflow-hidden">
-                  <CardHeader className="pb-2 border-b border-green-100 bg-white">
-                    <CardTitle className="text-xl text-gray-800">Blood Test Results</CardTitle>
-                    <CardDescription>
-                      Detailed breakdown of your blood markers from {bloodTestData.current.date}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="bg-gray-50 border-b border-gray-100">
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Marker</th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Result</th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Normal Range</th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Change</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {filteredMarkers.map((marker) => (
-                            <tr
-                              key={marker.id}
-                              className={`hover:bg-gray-50 cursor-pointer ${selectedMarker?.id === marker.id ? "bg-green-50" : ""}`}
-                              onClick={() => setSelectedMarker(marker)}
-                            >
-                              <td className="px-4 py-3 text-sm text-gray-800 font-medium">{marker.name}</td>
-                              <td className="px-4 py-3 text-sm text-gray-700">
-                                {marker.value} {marker.unit}
-                              </td>
-                              <td className="px-4 py-3 text-sm text-gray-700">{marker.normalRange}</td>
-                              <td className="px-4 py-3">
-                                <Badge variant="outline" className={getStatusColor(marker.status)}>
-                                  <span className="flex items-center">
-                                    {getStatusIcon(marker.status)}
-                                    <span className="ml-1 capitalize">{marker.status}</span>
-                                  </span>
-                                </Badge>
-                              </td>
-                              <td className="px-4 py-3 text-sm">
-                                <div className="flex items-center">
-                                  {getChangeIcon(marker.change)}
-                                  <span
-                                    className={`ml-1 ${marker.change.startsWith("+") ? "text-red-600" : "text-green-600"}`}
-                                  >
-                                    {marker.change}
-                                  </span>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
+            <div className="space-y-4">
+              {[
+                "Extracting data from documents",
+                "Identifying blood markers",
+                "Comparing with reference ranges",
+                "Generating health insights",
+                "Creating personalized recommendations",
+                "Finalizing your health report",
+              ].map((step, index) => (
+                <div key={index} className="flex items-center">
+                  <div
+                    className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-3 ${
+                      processingStage > index
+                        ? "bg-[#16a07c]"
+                        : processingStage === index
+                          ? "bg-gray-700 border-2 border-[#16a07c] animate-pulse"
+                          : "bg-gray-700"
+                    }`}
+                  >
+                    {processingStage > index && <CheckCircle2 className="w-4 h-4 text-white" />}
+                  </div>
+                  <div
+                    className={`text-sm ${
+                      processingStage > index
+                        ? "text-gray-300"
+                        : processingStage === index
+                          ? "text-white font-medium"
+                          : "text-gray-500"
+                    }`}
+                  >
+                    {step}
+                  </div>
+                </div>
+              ))}
+            </div>
 
-                {selectedMarker && (
-                  <Card className="border-0 shadow-md overflow-hidden mt-6">
-                    <CardHeader className="pb-2 border-b border-green-100">
-                      <div className="flex justify-between items-center">
-                        <CardTitle className="text-lg text-gray-800">{selectedMarker.name} Details</CardTitle>
-                        <Badge variant="outline" className={getStatusColor(selectedMarker.status)}>
-                          <span className="flex items-center">
-                            {getStatusIcon(selectedMarker.status)}
-                            <span className="ml-1 capitalize">{selectedMarker.status}</span>
-                          </span>
-                        </Badge>
+            <div className="mt-8 text-center text-sm text-gray-400">
+              <p>This usually takes less than a minute</p>
+              <p className="mt-1">We're preparing a comprehensive analysis of your health data</p>
+            </div>
+          </div>
+
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center text-xs text-gray-400">
+              <Dna className="w-4 h-4 mr-1" />
+              Powered by HealthHunter AI
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen py-8 bg-gradient-to-b from-green-50 to-white">
+      <div className="container mx-auto px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Health Analysis</h1>
+            <p className="text-gray-600">Upload your medical test results for a comprehensive AI-powered analysis</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Info Cards */}
+            <div className="space-y-6">
+              <Card className="border-0 shadow-md overflow-hidden bg-gradient-to-br from-[#16a07c]/10 to-white">
+                <CardHeader className="pb-2 border-b border-green-100">
+                  <CardTitle className="text-[#16a07c] flex items-center">
+                    <CheckCircle2 className="w-5 h-5 mr-2" />
+                    How It Works
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#16a07c] text-white flex items-center justify-center font-medium">
+                        1
                       </div>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-1">Description</h4>
-                          <p className="text-sm text-gray-600">{selectedMarker.description}</p>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-1">Current Value</h4>
-                          <div className="flex items-center">
-                            <span className="text-2xl font-bold text-gray-800">{selectedMarker.value}</span>
-                            <span className="ml-1 text-gray-600">{selectedMarker.unit}</span>
-                            <div className="ml-3 flex items-center">
-                              {getChangeIcon(selectedMarker.change)}
-                              <span
-                                className={`ml-1 ${selectedMarker.change.startsWith("+") ? "text-red-600" : "text-green-600"}`}
-                              >
-                                {selectedMarker.change} from previous
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-1">Normal Range</h4>
-                          <div className="relative h-8 bg-gray-100 rounded-full overflow-hidden">
-                            <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
-                              {selectedMarker.normalRange} {selectedMarker.unit}
-                            </div>
-                            <div
-                              className="absolute top-0 bottom-0 bg-green-200 opacity-70"
-                              style={{
-                                left: "25%",
-                                right: "25%",
-                              }}
-                            ></div>
-                            <div
-                              className="absolute top-0 bottom-0 w-2 bg-green-600"
-                              style={{
-                                left: `${50 + (selectedMarker.value / Number.parseFloat(selectedMarker.normalRange.split("-")[1])) * 50}%`,
-                                transform: "translateX(-50%)",
-                              }}
-                            ></div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-1">Recommendations</h4>
-                          <p className="text-sm text-gray-600">{selectedMarker.recommendations}</p>
-                        </div>
-
-                        <div className="pt-2">
-                          <Button className="w-full bg-green-600 hover:bg-green-700">
-                            <Info className="h-4 w-4 mr-2" />
-                            Learn More About {selectedMarker.name}
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </TabsContent>
-
-              <TabsContent value="trends" className="mt-4">
-                <Card className="border-0 shadow-md overflow-hidden">
-                  <CardHeader className="pb-2 border-b border-green-100 bg-gradient-to-r from-green-50 to-white">
-                    <CardTitle className="text-xl text-gray-800">Blood Marker Trends</CardTitle>
-                    <CardDescription>Track how your blood markers have changed over time</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <div className="space-y-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Select Marker</label>
-                        <Select defaultValue="1">
-                          <SelectTrigger className="border-green-200 focus:ring-green-300 bg-white">
-                            <SelectValue placeholder="Select marker to view" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {bloodTestData.current.markers.map((marker) => (
-                              <SelectItem key={marker.id} value={marker.id.toString()}>
-                                {marker.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <h3 className="font-medium text-gray-800">Upload Medical Tests</h3>
+                        <p className="text-sm text-gray-600">Share your blood test results or medical documents</p>
                       </div>
-
-                      <div className="h-[300px] w-full">
-                        {/* This would be replaced with an actual chart component */}
-                        <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg border border-gray-200">
-                          <div className="text-center">
-                            <BarChart3 className="h-12 w-12 text-green-200 mx-auto mb-2" />
-                            <p className="text-gray-500">Chart visualization would appear here</p>
-                          </div>
-                        </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#16a07c] text-white flex items-center justify-center font-medium">
+                        2
                       </div>
-
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <h4 className="font-medium text-gray-800 mb-2">Trend Analysis</h4>
+                      <div>
+                        <h3 className="font-medium text-gray-800">AI Analysis</h3>
+                        <p className="text-sm text-gray-600">Our AI analyzes your test results</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#16a07c] text-white flex items-center justify-center font-medium">
+                        3
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-800">Get Detailed Insights</h3>
                         <p className="text-sm text-gray-600">
-                          Your hemoglobin levels have been stable over the past 3 tests, showing a slight improvement.
-                          Continue with your current diet and exercise routine to maintain these healthy levels.
+                          Receive personalized health insights and recommendations
                         </p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <TabsContent value="recommendations" className="mt-4">
-                <Card className="border-0 shadow-md overflow-hidden">
-                  <CardHeader className="pb-2 border-b border-green-100 bg-gradient-to-r from-green-50 to-white">
-                    <CardTitle className="text-xl text-gray-800">Personalized Recommendations</CardTitle>
-                    <CardDescription>
-                      Based on your blood test results, here are some recommendations to improve your health
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="item-1">
-                        <AccordionTrigger className="hover:bg-green-50 px-4 py-2 rounded-lg">
-                          <div className="flex items-center">
-                            <Badge className="bg-red-100 text-red-800 border-red-200 mr-3">Attention Needed</Badge>
-                            <span>Manage Blood Glucose Levels</span>
+              <Card className="border-0 shadow-md overflow-hidden">
+                <CardHeader className="pb-2 border-b border-green-100">
+                  <CardTitle className="text-gray-800">Supported Test Types</CardTitle>
+                  <CardDescription>We can analyze the following medical tests</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-3 text-sm text-gray-600">
+                    <p className="flex items-start">
+                      <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5" />
+                      Complete Blood Count (CBC)
+                    </p>
+                    <p className="flex items-start">
+                      <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5" />
+                      Comprehensive Metabolic Panel (CMP)
+                    </p>
+                    <p className="flex items-start">
+                      <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5" />
+                      Lipid Panel (Cholesterol)
+                    </p>
+                    <p className="flex items-start">
+                      <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5" />
+                      Thyroid Function Tests
+                    </p>
+                    <p className="flex items-start">
+                      <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5" />
+                      Vitamin and Mineral Panels
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column - Main Form */}
+            <div className="lg:col-span-2">
+              <Card className="border-0 shadow-xl overflow-hidden">
+                <CardHeader className="border-b border-green-100 bg-gradient-to-r from-[#16a07c]/5 to-white">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="text-xl text-gray-800">Upload Medical Tests</CardTitle>
+                      <CardDescription>Share your test results for AI analysis</CardDescription>
+                    </div>
+                    <Badge className="bg-[#16a07c]">AI-Powered</Badge>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-0">
+                  <Tabs defaultValue="upload" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <div className="border-b border-green-100">
+                      <TabsList className="w-full rounded-none bg-transparent border-b border-green-100 p-0">
+                        <TabsTrigger
+                          value="upload"
+                          className="flex-1 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#16a07c] data-[state=active]:text-[#16a07c] data-[state=active]:shadow-none py-3"
+                        >
+                          Upload Files
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="review"
+                          className="flex-1 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#16a07c] data-[state=active]:text-[#16a07c] data-[state=active]:shadow-none py-3"
+                        >
+                          Review & Submit
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
+
+                    <form onSubmit={handleSubmit}>
+                      <TabsContent value="upload" className="p-6 space-y-6 mt-0">
+                        {/* PDF Upload */}
+                        <div className="space-y-3">
+                          <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                            <FileText className="w-5 h-5 mr-2 text-[#16a07c]" />
+                            Blood Test Results (PDF)
+                          </h3>
+
+                          <div
+                            className={`relative p-4 rounded-xl transition-all duration-300 ${
+                              pdfFile
+                                ? "bg-[#16a07c]/5 border border-[#16a07c]/20"
+                                : "bg-gradient-to-br from-[#16a07c]/5 to-[#75eea1]/5 border-2 border-dashed border-[#16a07c]/30"
+                            }`}
+                          >
+                            <label className="flex flex-col items-center justify-center w-full cursor-pointer py-3">
+                              {!pdfFile ? (
+                                <div className="flex flex-col items-center justify-center text-center">
+                                  <div className="w-12 h-12 mb-3 rounded-full bg-[#16a07c]/10 flex items-center justify-center">
+                                    <FileUp className="w-6 h-6 text-[#16a07c]" />
+                                  </div>
+                                  <p className="text-sm font-medium text-gray-700">Upload your blood test results</p>
+                                  <p className="mt-1 text-xs text-gray-500">PDF files up to 10MB</p>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-between w-full">
+                                  <div className="flex items-center">
+                                    <FileText className="w-8 h-8 text-[#16a07c] mr-3" />
+                                    <div>
+                                      <p className="text-sm font-medium text-gray-700 truncate max-w-[200px]">
+                                        {pdfName}
+                                      </p>
+                                      <p className="text-xs text-gray-500">PDF document</p>
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setPdfFile(null)
+                                      setPdfName(null)
+                                    }}
+                                    className="text-sm text-red-500 hover:text-red-700"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              )}
+                              <input
+                                type="file"
+                                accept="application/pdf"
+                                onChange={handlePdfChange}
+                                className="hidden"
+                              />
+                            </label>
                           </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="space-y-3">
-                            <p className="text-gray-600">
-                              Your glucose level is elevated at 105 mg/dL (normal range: 70-99 mg/dL). Here are some
-                              recommendations to help manage your blood sugar:
-                            </p>
-                            <ul className="space-y-2 text-gray-600">
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Limit intake of refined carbohydrates and sugary foods</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Increase physical activity to at least 150 minutes per week</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Include more fiber-rich foods in your diet</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Stay hydrated by drinking plenty of water</span>
-                              </li>
-                            </ul>
-                            <div className="pt-2">
-                              <Button className="bg-green-600 hover:bg-green-700">View Detailed Plan</Button>
+                        </div>
+
+                        {/* Photo Upload */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                              <Camera className="w-5 h-5 mr-2 text-[#16a07c]" />
+                              Upload Photo of Test Results
+                            </h3>
+                            {imagePreview && (
+                              <button
+                                type="button"
+                                onClick={() => setImagePreview(null)}
+                                className="text-sm text-red-500 hover:text-red-700"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="relative">
+                            <label
+                              className={`flex flex-col items-center justify-center w-full h-[200px] rounded-xl cursor-pointer transition-all duration-300 ${
+                                imagePreview
+                                  ? "bg-white"
+                                  : "bg-gradient-to-br from-[#16a07c]/5 to-[#75eea1]/5 border-2 border-dashed border-[#16a07c]/30 hover:bg-[#16a07c]/10"
+                              }`}
+                            >
+                              {!imagePreview ? (
+                                <div className="flex flex-col items-center justify-center p-6 text-center">
+                                  <div className="w-12 h-12 mb-3 rounded-full bg-[#16a07c]/10 flex items-center justify-center">
+                                    <Upload className="w-6 h-6 text-[#16a07c]" />
+                                  </div>
+                                  <p className="text-sm font-medium text-gray-700">
+                                    Upload an image of your test results
+                                  </p>
+                                  <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                                </div>
+                              ) : (
+                                <div className="relative w-full h-full">
+                                  <img
+                                    src={imagePreview || "/placeholder.svg"}
+                                    alt="Image Preview"
+                                    className="w-full h-full object-contain rounded-xl"
+                                  />
+                                </div>
+                              )}
+                              <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-4">
+                          <Button
+                            type="button"
+                            className="bg-[#16a07c] hover:bg-[#138e6e] text-white"
+                            onClick={() => setActiveTab("review")}
+                            disabled={!pdfFile && !imagePreview}
+                          >
+                            Continue
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="review" className="p-6 space-y-6 mt-0">
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-800">Review Your Files</h3>
+
+                          <div className="space-y-4">
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <h4 className="text-sm font-medium text-gray-700 mb-2">Uploaded Files</h4>
+                              <div className="space-y-2">
+                                {imagePreview && (
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <Camera className="w-4 h-4 text-[#16a07c]" />
+                                    <span>Image of test results uploaded</span>
+                                  </div>
+                                )}
+                                {pdfFile && (
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <FileText className="w-4 h-4 text-[#16a07c]" />
+                                    <span>{pdfName}</span>
+                                  </div>
+                                )}
+                                {!imagePreview && !pdfFile && (
+                                  <div className="text-sm text-amber-600 flex items-center">
+                                    <AlertCircle className="w-4 h-4 mr-1" />
+                                    No files uploaded
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <h4 className="text-sm font-medium text-gray-700 mb-2">What Happens Next</h4>
+                              <p className="text-sm text-gray-600">
+                                After submitting your files, our AI will analyze your test results and provide:
+                              </p>
+                              <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                                <li className="flex items-start">
+                                  <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5 flex-shrink-0" />
+                                  <span>Detailed breakdown of all test markers</span>
+                                </li>
+                                <li className="flex items-start">
+                                  <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5 flex-shrink-0" />
+                                  <span>Comparison with normal ranges</span>
+                                </li>
+                                <li className="flex items-start">
+                                  <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5 flex-shrink-0" />
+                                  <span>Personalized health recommendations</span>
+                                </li>
+                                <li className="flex items-start">
+                                  <CheckCircle2 className="w-4 h-4 text-[#16a07c] mr-2 mt-0.5 flex-shrink-0" />
+                                  <span>Trend analysis if you've uploaded previous tests</span>
+                                </li>
+                              </ul>
                             </div>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                        </div>
 
-                      <AccordionItem value="item-2">
-                        <AccordionTrigger className="hover:bg-green-50 px-4 py-2 rounded-lg">
-                          <div className="flex items-center">
-                            <Badge className="bg-amber-100 text-amber-800 border-amber-200 mr-3">
-                              Monitoring Advised
-                            </Badge>
-                            <span>Improve Platelet Count</span>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="space-y-3">
-                            <p className="text-gray-600">
-                              Your platelet count is slightly below the normal range at 140 10³/µL (normal range:
-                              150-450 10³/µL). Consider these recommendations:
-                            </p>
-                            <ul className="space-y-2 text-gray-600">
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Include more foods rich in vitamin K, such as leafy greens and broccoli</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Consider foods with iron, vitamin B12, and folate</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Stay hydrated and maintain a balanced diet</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Schedule a follow-up test in 4-6 weeks to monitor progress</span>
-                              </li>
-                            </ul>
-                            <div className="pt-2">
-                              <Button className="bg-green-600 hover:bg-green-700">Learn More</Button>
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-
-                      <AccordionItem value="item-3">
-                        <AccordionTrigger className="hover:bg-green-50 px-4 py-2 rounded-lg">
-                          <div className="flex items-center">
-                            <Badge className="bg-red-100 text-red-800 border-red-200 mr-3">Attention Needed</Badge>
-                            <span>Lower LDL Cholesterol</span>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="space-y-3">
-                            <p className="text-gray-600">
-                              Your LDL cholesterol is slightly elevated at 110 mg/dL (normal range: &lt;100 mg/dL). Here
-                              are some recommendations to help lower your LDL cholesterol:
-                            </p>
-                            <ul className="space-y-2 text-gray-600">
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Reduce intake of saturated and trans fats</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Increase consumption of soluble fiber from oats, beans, and fruits</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Include plant sterols and stanols in your diet</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Exercise regularly and maintain a healthy weight</span>
-                              </li>
-                            </ul>
-                            <div className="pt-2">
-                              <Button className="bg-green-600 hover:bg-green-700">View Heart Health Plan</Button>
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-
-                      <AccordionItem value="item-4">
-                        <AccordionTrigger className="hover:bg-green-50 px-4 py-2 rounded-lg">
-                          <div className="flex items-center">
-                            <Badge className="bg-green-100 text-green-800 border-green-200 mr-3">Maintain</Badge>
-                            <span>Continue Healthy Habits</span>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="space-y-3">
-                            <p className="text-gray-600">
-                              Many of your markers are within normal ranges. Continue these healthy habits:
-                            </p>
-                            <ul className="space-y-2 text-gray-600">
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Maintain a balanced diet rich in fruits, vegetables, and whole grains</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Stay physically active with at least 30 minutes of exercise daily</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Get adequate sleep (7-9 hours per night)</span>
-                              </li>
-                              <li className="flex items-start">
-                                <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                                <span>Manage stress through relaxation techniques</span>
-                              </li>
-                            </ul>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                        <div className="flex justify-between pt-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="border-[#16a07c] text-[#16a07c]"
+                            onClick={() => setActiveTab("upload")}
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            type="submit"
+                            className="bg-gradient-to-r from-[#16a07c] to-[#75eea1] hover:from-[#138e6e] hover:to-[#5ed889] text-white px-6"
+                            disabled={isLoading || (!imagePreview && !pdfFile)}
+                          >
+                            {isLoading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Processing...
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-4 h-4 mr-2" />
+                                Submit for Analysis
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    </form>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
