@@ -40,7 +40,6 @@ export default function AnalysisPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const router = useRouter()
 
-  // Simulate upload progress
   useEffect(() => {
     if (isLoading && uploadProgress < 90) {
       const timer = setTimeout(() => {
@@ -50,7 +49,6 @@ export default function AnalysisPage() {
     }
   }, [isLoading, uploadProgress])
 
-  // Processing stages text
   useEffect(() => {
     if (isLoading) {
       const stages = [
@@ -256,9 +254,9 @@ export default function AnalysisPage() {
           ))}
         </div>
 
-        <div className="z-10 max-w-md w-full px-4 py-8 pt-[80px]">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#16a07c] to-[#75eea1] mb-4 relative">
+        <div className="z-10 max-w-md w-full px-4 py-8 ">
+          <div className="text-center mb-8 ">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#16a07c] to-[#75eea1] mb-4 relative ">
               <Sparkles className="w-10 h-10 text-white animate-pulse" />
               <div className="absolute inset-0 rounded-full border-4 border-white border-opacity-20 animate-ping"></div>
             </div>
@@ -336,7 +334,7 @@ export default function AnalysisPage() {
   }
 
   return (
-    <div className="min-h-screen py-8 bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen py-8 bg-gradient-to-b from-green-50 to-white pt-[90px]">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
@@ -469,7 +467,7 @@ export default function AnalysisPage() {
                                 : "bg-gradient-to-br from-[#16a07c]/5 to-[#75eea1]/5 border-2 border-dashed border-[#16a07c]/30"
                             }`}
                           >
-                            <label className="flex flex-col items-center justify-center w-full cursor-pointer py-3">
+                            <label className="flex flex-col items-center justify-center w-full cursor-pointer py-[100px]">
                               {!pdfFile ? (
                                 <div className="flex flex-col items-center justify-center text-center">
                                   <div className="w-12 h-12 mb-3 rounded-full bg-[#16a07c]/10 flex items-center justify-center">
@@ -479,7 +477,7 @@ export default function AnalysisPage() {
                                   <p className="mt-1 text-xs text-gray-500">PDF files up to 10MB</p>
                                 </div>
                               ) : (
-                                <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center justify-between w-full ">
                                   <div className="flex items-center">
                                     <FileText className="w-8 h-8 text-[#16a07c] mr-3" />
                                     <div>
@@ -511,55 +509,6 @@ export default function AnalysisPage() {
                           </div>
                         </div>
 
-                        {/* Photo Upload */}
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                              <Camera className="w-5 h-5 mr-2 text-[#16a07c]" />
-                              Upload Photo of Test Results
-                            </h3>
-                            {imagePreview && (
-                              <button
-                                type="button"
-                                onClick={() => setImagePreview(null)}
-                                className="text-sm text-red-500 hover:text-red-700"
-                              >
-                                Remove
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="relative">
-                            <label
-                              className={`flex flex-col items-center justify-center w-full h-[200px] rounded-xl cursor-pointer transition-all duration-300 ${
-                                imagePreview
-                                  ? "bg-white"
-                                  : "bg-gradient-to-br from-[#16a07c]/5 to-[#75eea1]/5 border-2 border-dashed border-[#16a07c]/30 hover:bg-[#16a07c]/10"
-                              }`}
-                            >
-                              {!imagePreview ? (
-                                <div className="flex flex-col items-center justify-center p-6 text-center">
-                                  <div className="w-12 h-12 mb-3 rounded-full bg-[#16a07c]/10 flex items-center justify-center">
-                                    <Upload className="w-6 h-6 text-[#16a07c]" />
-                                  </div>
-                                  <p className="text-sm font-medium text-gray-700">
-                                    Upload an image of your test results
-                                  </p>
-                                  <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 10MB</p>
-                                </div>
-                              ) : (
-                                <div className="relative w-full h-full">
-                                  <img
-                                    src={imagePreview || "/placeholder.svg"}
-                                    alt="Image Preview"
-                                    className="w-full h-full object-contain rounded-xl"
-                                  />
-                                </div>
-                              )}
-                              <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                            </label>
-                          </div>
-                        </div>
 
                         <div className="flex justify-end pt-4">
                           <Button

@@ -529,6 +529,7 @@ export default function BloodAnalysis() {
               </CardContent>
             </Card>
 
+
             <Card className="border-0 shadow-md overflow-hidden">
               <CardHeader className="pb-2 border-b border-green-100">
                 <CardTitle className="text-lg text-gray-800">Actions</CardTitle>
