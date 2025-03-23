@@ -454,6 +454,50 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Recent Transcription Card */}
+          <Card className="border-0 shadow-md">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center">
+                <FileText className="h-5 w-5 text-green-600 mr-2" />
+                Latest Consultation
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-3">
+              <div className="space-y-4">
+                <div className="bg-green-50/50 p-3 rounded-lg border border-green-100">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Transcription Overview</h4>
+                  <p className="text-sm text-gray-600">
+                    Patient presents with recurring headaches for the past two weeks, primarily in the frontal region. 
+                    Pain described as throbbing (7/10). No nausea or visual disturbances reported.
+                  </p>
+                </div>
+
+                <div className="bg-white p-3 rounded-lg border border-green-100">
+                  <h4 className="text-sm font-medium text-green-600 mb-2">Doctor's Assessment</h4>
+                  <div className="text-sm text-gray-700 space-y-2">
+                    <p className="font-medium">Tension headache, possibly migraine</p>
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-600 font-medium">Recommended Plan:</p>
+                      <ul className="list-disc list-inside text-xs text-gray-600 pl-1">
+                        <li>Complete neurological examination</li>
+                        <li>Consider prescription-strength analgesics</li>
+                        <li>Stress reduction techniques</li>
+                        <li>Follow-up in two weeks if symptoms persist</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500">May 15, 2024</span>
+                  <Button variant="link" className="p-0 h-auto text-green-600">
+                    View Full Report
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

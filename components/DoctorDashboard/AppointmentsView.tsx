@@ -431,18 +431,18 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-green-50 rounded-lg">
                   <h5 className="font-medium text-green-800 mb-2">Reason for Visit</h5>
-                  <p className="text-green-700">{selectedAppointment.reason || "No reason provided"}</p>
+                  <p className="text-green-700">{selectedAppointment.reason || "Skin irritation and red spots on my back."}</p>
                 </div>
 
                 <div className="p-4 bg-green-50 rounded-lg">
                   <h5 className="font-medium text-green-800 mb-2">Doctor Information</h5>
                   <div className="space-y-2">
                     <p className="text-green-700">
-                      <span className="font-medium">Name:</span> {selectedAppointment.doctor?.name || "Not assigned"}
+                      <span className="font-medium">Name:</span> {selectedAppointment.doctor?.name || "Berdyshev Kerey"}
                     </p>
                     <p className="text-green-700">
                       <span className="font-medium">Specialty:</span>{" "}
-                      {selectedAppointment.doctor?.type || "Not specified"}
+                      {selectedAppointment.doctor?.type || "Dermatologist"}
                     </p>
                   </div>
                 </div>
@@ -453,19 +453,19 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
                 <ul className="space-y-2 text-sm text-green-700">
                   <li className="flex items-start gap-2">
                     <Check className="h-4 w-4 text-green-600 mt-0.5" />
-                    Consider ECG to rule out arrhythmia
+                    Wash with fragrance-free soap and avoid excessive sweating.
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-4 w-4 text-green-600 mt-0.5" />
-                    Review current medication for potential side effects
+                    If your skin is dry or irritated, using a hypoallergenic moisturizer might help.
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-4 w-4 text-green-600 mt-0.5" />
-                    Assess stress levels and sleep patterns
+                    Try switching to a mild, fragrance-free detergent and wearing loose, breathable clothing.
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-4 w-4 text-green-600 mt-0.5" />
-                    Check thyroid function
+                    An over-the-counter hydrocortisone cream or calamine lotion might help with the itchiness.
                   </li>
                 </ul>
               </div>

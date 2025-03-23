@@ -118,17 +118,15 @@ export default function Dashboard() {
       setIsLoading(true)
 
       try {
-        // Using the correct endpoint and request format
         const response = await axiosInstance.post(`/chatbot/${selectedChat.chat_id}`, {
           user_message: prompt
         })
 
-        // Add bot reply after a short delay
         setTimeout(() => {
           if (response.data && response.data.bot_reply) {
             const botReply: ChatMessage = {
               role: "bot",
-              text: response.data.bot_reply
+              text: response.data.bot_reply.replace("END_OF_CONSULTATION_MARKER", "")
             }
             
             setSelectedChat(prev => {
@@ -311,7 +309,7 @@ export default function Dashboard() {
                             msg.role === "user" ? "bg-green-600 text-white" : "bg-white border border-gray-200"
                           }`}
                         >
-                          <ReactMarkdown className="text-sm">{msg.text}</ReactMarkdown>
+                          <ReactMarkdown className="text-sm">{msg.text.replace("END_OF_CONSULTATION_MARKER", "")}</ReactMarkdown>
                         </div>
                       </div>
                     </div>
