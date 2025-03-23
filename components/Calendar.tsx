@@ -61,7 +61,12 @@ const MyCalendar: React.FC = () => {
   // Function to format the date as "October 18th"
   const formatDate = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' };
-    return date.toLocaleDateString(undefined, options).replace(/(\d+)(?=(st|nd|rd|th))/g, (match) => `${match}${['', 'st', 'nd', 'rd', 'th'][match % 10] || 'th'}`);
+    return date.toLocaleDateString(undefined, options).replace(/(\d+)(?=(st|nd|rd|th))/g, (match) => {
+      const num = parseInt(match, 10);
+      const suffixes = ['th', 'st', 'nd', 'rd'];
+      const suffix = num % 100 >= 11 && num % 100 <= 13 ? 'th' : suffixes[num % 10] || 'th';
+      return `${match}${suffix}`;
+    });
   };
 
   return (
