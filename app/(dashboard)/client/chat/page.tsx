@@ -5,19 +5,11 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import axiosInstance from "@/app/axios/instance"
 import ReactMarkdown from "react-markdown"
-import {
-  Search,
-  Plus,
-  User,
-  Send,
-  ArrowLeft,
-  Paperclip,
-  MessageSquare,
-} from "lucide-react"
+import { Search, Plus, User, Send, Paperclip, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import AppointmentPrompt from "@/components/appointment-prompt"
 
 // Update the interfaces to match API response
 interface ChatSession {
@@ -39,10 +31,13 @@ interface ChatDetail {
   chat_id: number
   request_id: number
   doctor_name: string
+  doctor_id?: number
+  doctor_type?: string
   title: string
   color: string
   created_at: string
   chat_history: ChatMessage[]
+  consultation_complete?: boolean
 }
 
 export default function Dashboard() {
@@ -52,6 +47,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false)
   const [isLoadingChats, setIsLoadingChats] = useState<boolean>(true)
+  const [showAppointmentPrompt, setShowAppointmentPrompt] = useState<boolean>(false)
 
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -65,7 +61,7 @@ export default function Dashboard() {
       try {
         const response = await axiosInstance.get("/my_chats")
         setChatSessions(response.data)
-        
+
         // If chats exist, load the first one by default
         if (response.data.length > 0) {
           loadChatDetail(response.data[0].chat_id)
@@ -80,12 +76,32 @@ export default function Dashboard() {
     fetchChatSessions()
   }, [])
 
-  // Load chat detail by ID
+  // Modify the loadChatDetail function to check for the confirmed field
   const loadChatDetail = async (chatId: number) => {
     setIsLoading(true)
     try {
       const response = await axiosInstance.get(`/chat/${chatId}`)
-      setSelectedChat(response.data)
+
+      // Check if any message in chat history contains the END_OF_CONSULTATION_MARKER
+      const hasEndMarker = response.data.chat_history.some((msg: ChatMessage) =>
+        msg.text.includes("END_OF_CONSULTATION_MARKER"),
+      )
+
+      // Clean the marker from all messages
+      const cleanedChatHistory = response.data.chat_history.map((msg: ChatMessage) => ({
+        ...msg,
+        text: msg.text.replace("END_OF_CONSULTATION_MARKER", ""),
+      }))
+
+      // Set the chat with cleaned messages and consultation_complete flag
+      setSelectedChat({
+        ...response.data,
+        chat_history: cleanedChatHistory,
+        consultation_complete: hasEndMarker,
+      })
+
+      // Show appointment prompt if marker was found AND chat is not confirmed
+      setShowAppointmentPrompt(hasEndMarker && !response.data.confirmed)
     } catch (error) {
       console.error(`Error fetching chat ${chatId}:`, error)
     } finally {
@@ -106,36 +122,48 @@ export default function Dashboard() {
       // Add user message to chat history
       const userMessage: ChatMessage = {
         role: "user",
-        text: prompt
+        text: prompt,
       }
-      
+
       setSelectedChat({
         ...selectedChat,
-        chat_history: [...selectedChat.chat_history, userMessage]
+        chat_history: [...selectedChat.chat_history, userMessage],
       })
-      
+
       setPrompt("")
       setIsLoading(true)
 
       try {
         const response = await axiosInstance.post(`/chatbot/${selectedChat.chat_id}`, {
-          user_message: prompt
+          user_message: prompt,
         })
 
         setTimeout(() => {
           if (response.data && response.data.bot_reply) {
+            // Check if the message contains the end marker
+            const hasEndMarker = response.data.bot_reply.includes("END_OF_CONSULTATION_MARKER")
+            const cleanedReply = response.data.bot_reply.replace("END_OF_CONSULTATION_MARKER", "")
+
             const botReply: ChatMessage = {
               role: "bot",
-              text: response.data.bot_reply.replace("END_OF_CONSULTATION_MARKER", "")
+              text: cleanedReply,
             }
-            
-            setSelectedChat(prev => {
+
+            setSelectedChat((prev) => {
               if (!prev) return null
               return {
                 ...prev,
-                chat_history: [...prev.chat_history, botReply]
+                chat_history: [...prev.chat_history, botReply],
+                consultation_complete: hasEndMarker || prev.consultation_complete,
+                doctor_id: response.data.doctor_id || prev.doctor_id,
+                doctor_type: response.data.doctor_type || prev.doctor_type,
               }
             })
+
+            // Show appointment prompt if end marker is detected
+            if (hasEndMarker) {
+              setShowAppointmentPrompt(true)
+            }
           }
           setIsLoading(false)
         }, 100)
@@ -247,7 +275,10 @@ export default function Dashboard() {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-green-100">
-            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => router.push("/client/appointment")}>
+            <Button
+              className="w-full bg-green-600 hover:bg-green-700"
+              onClick={() => router.push("/client/appointment")}
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Appointment
             </Button>
@@ -309,21 +340,28 @@ export default function Dashboard() {
                             msg.role === "user" ? "bg-green-600 text-white" : "bg-white border border-gray-200"
                           }`}
                         >
-                          <ReactMarkdown className="text-sm">{msg.text.replace("END_OF_CONSULTATION_MARKER", "")}</ReactMarkdown>
+                          <ReactMarkdown className="text-sm">{msg.text}</ReactMarkdown>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
 
+                {/* Appointment Prompt */}
+                {showAppointmentPrompt && selectedChat.doctor_id && (
+                  <AppointmentPrompt
+                    doctorId={Number.parseInt(selectedChat.doctor_id.toString())}
+                    doctorName={selectedChat.doctor_name}
+                    doctorType={selectedChat.doctor_type || "Specialist"}
+                    chatId={selectedChat.chat_id}
+                  />
+                )}
+
                 {isLoading && (
                   <div className="flex justify-start">
                     <div className="flex items-start gap-3 max-w-[80%]">
                       <Avatar className="h-8 w-8 mt-1">
-                        <AvatarFallback
-                          style={{ backgroundColor: selectedChat.color }}
-                          className="text-white"
-                        >
+                        <AvatarFallback style={{ backgroundColor: selectedChat.color }} className="text-white">
                           {selectedChat.title.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
