@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
 import axiosInstance from "@/app/axios/instance"
+import { Calendar } from "@/components/ui/calendar"
 
 interface Doctor {
   id: number
@@ -367,18 +368,15 @@ const CreateAppointment = () => {
                           <Label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
                             Select Date
                           </Label>
-                          <div className="relative">
-                            <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-600" />
-                            <input
-                              type="date"
-                              id="date"
-                              value={date ? format(date, "yyyy-MM-dd") : ""}
-                              onChange={(e) => setDate(e.target.value ? new Date(e.target.value) : undefined)}
-                              min={format(new Date(), "yyyy-MM-dd")}
-                              max={format(new Date(new Date().setDate(new Date().getDate() + 30)), "yyyy-MM-dd")}
-                              className="w-full pl-10 pr-4 py-2 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-300 bg-white"
+                          <div className="relative border border-green-200 rounded-md p-3 bg-white">
+                            <Calendar 
+                              mode="single" 
+                              selected={date} 
+                              onSelect={setDate} 
+                              className="rounded-md border"
                             />
                           </div>
+
                         </div>
 
                         {/* Time Selection */}
@@ -421,24 +419,40 @@ const CreateAppointment = () => {
                         <Label className="block text-sm font-medium text-gray-700 mb-2">Appointment Type</Label>
                         <RadioGroup
                           value={appointmentType}
-                          onValueChange={(value) => setAppointmentType(value as "online" | "in-person")}
+                          onValueChange={(value) => setAppointmentType(value as "video" | "in-person")}
                           className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4"
                         >
-                          <div className="flex items-center space-x-2 bg-white border border-green-200 rounded-md p-3 hover:bg-green-50/50 cursor-pointer">
-                            <RadioGroupItem value="online" id="online" className="text-green-600" />
-                            <Label htmlFor="online" className="flex items-center cursor-pointer">
-                              <Video className="w-4 h-4 mr-2 text-green-600" />
-                              <span>Online Consultation</span>
+                          <div
+                            className={`flex items-center space-x-2 p-3 rounded-md cursor-pointer border transition ${
+                              appointmentType === "video"
+                                ? "bg-green-500 text-white border-green-500 hover:bg-green-600"
+                                : "bg-white text-green-700 border-green-200 hover:bg-green-50"
+                            }`}
+                            onClick={() => setAppointmentType("video")}
+                          >
+                            <RadioGroupItem value="video" id="video" className="hidden" />
+                            <Label htmlFor="video" className="flex items-center cursor-pointer">
+                              <Video className="w-4 h-4 mr-2" />
+                              <span>Video Call</span>
                             </Label>
                           </div>
-                          <div className="flex items-center space-x-2 bg-white border border-green-200 rounded-md p-3 hover:bg-green-50/50 cursor-pointer">
-                            <RadioGroupItem value="in-person" id="in-person" className="text-green-600" />
+                          
+                          <div
+                            className={`flex items-center space-x-2 p-3 rounded-md cursor-pointer border transition ${
+                              appointmentType === "in-person"
+                                ? "bg-green-500 text-white border-green-500 hover:bg-green-600"
+                                : "bg-white text-green-700 border-green-200 hover:bg-green-50"
+                            }`}
+                            onClick={() => setAppointmentType("in-person")}
+                          >
+                            <RadioGroupItem value="in-person" id="in-person" className="hidden" />
                             <Label htmlFor="in-person" className="flex items-center cursor-pointer">
-                              <Users className="w-4 h-4 mr-2 text-green-600" />
+                              <MapPin className="w-4 h-4 mr-2" />
                               <span>In-Person Visit</span>
                             </Label>
                           </div>
                         </RadioGroup>
+
                       </div>
 
                       <div className="flex justify-end">

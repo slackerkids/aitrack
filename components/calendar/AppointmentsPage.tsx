@@ -282,7 +282,7 @@ export default function AppointmentsPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-green-50 to-emerald-100">
+    <div className="relative min-h-screen w-full overflow-hidden bg-white">
       {/* Main Content */}
       <main className="relative w-full flex">
         {/* Sidebar */}
@@ -294,14 +294,14 @@ export default function AppointmentsPage() {
             <Plus className="h-5 w-5" />
             <span>New Appointment</span>
           </Button>
-
+  
           {/* Mini Calendar */}
           <MiniCalendar currentMonth={currentMonth} miniCalendarDays={miniCalendarDays} />
-
+  
           {/* Upcoming Appointments */}
           <UpcomingAppointments appointments={appointments} doctors={doctors} formatDate={formatDate} />
         </div>
-
+  
         {/* Main Calendar View */}
         <div
           className={`flex-1 flex flex-col opacity-0 ${isLoaded ? "animate-fade-in" : ""}`}
@@ -323,7 +323,7 @@ export default function AppointmentsPage() {
                 {currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
               </h2>
             </div>
-
+  
             <div className="flex items-center gap-2 bg-green-50 rounded-md p-1">
               <Button
                 variant="ghost"
@@ -348,7 +348,7 @@ export default function AppointmentsPage() {
               </Button>
             </div>
           </div>
-
+  
           {/* Tabs for Doctors and Appointments */}
           <Tabs defaultValue="doctors" className="w-full">
             <TabsList className="w-full justify-start p-0 bg-transparent border-b border-green-100">
@@ -365,7 +365,7 @@ export default function AppointmentsPage() {
                 My Appointments
               </TabsTrigger>
             </TabsList>
-
+  
             <TabsContent value="doctors" className="p-4">
               <DoctorList
                 onSelectDoctor={setSelectedDoctor}
@@ -373,7 +373,7 @@ export default function AppointmentsPage() {
                 setSearchQuery={setSearchQuery}
                 filteredDoctors={filteredDoctors}
               />
-
+  
               {selectedDoctor && (
                 <AppointmentCalendar
                   doctor={selectedDoctor}
@@ -385,7 +385,7 @@ export default function AppointmentsPage() {
                 />
               )}
             </TabsContent>
-
+  
             <TabsContent value="appointments" className="p-4">
               <AppointmentsTab
                 activeTab={activeTab}
@@ -399,7 +399,7 @@ export default function AppointmentsPage() {
           </Tabs>
         </div>
       </main>
-
+  
       {/* Appointment Booking Modal */}
       <AnimatePresence>
         {showAppointmentModal && selectedDoctor && selectedSlot && (
@@ -422,5 +422,4 @@ export default function AppointmentsPage() {
       </AnimatePresence>
     </div>
   )
-}
-
+}  
