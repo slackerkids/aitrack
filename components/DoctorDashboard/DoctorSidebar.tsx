@@ -64,7 +64,6 @@ export default function DoctorSidebar() {
     { name: "Patients", icon: Users, path: "/doctor/patients" },
     { name: "Medical Records", icon: FileText, path: "/doctor/records" },
     { name: "Analysis", icon: BarChart, path: "/doctor/analysis"},
-    { name: "Messages", icon: MessageSquare, path: "/doctor/messages", badge: 5 },
   ]
 
   if (loading) {
