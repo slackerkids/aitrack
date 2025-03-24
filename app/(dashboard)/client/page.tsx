@@ -161,12 +161,17 @@ const PatientDashboard: React.FC = () => {
 const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeNav, setActiveNav] = useState<string>("dashboard");
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
         const response = await axiosInstance.get("/my_appointments");
-        setAppointments(response.data);
+        // Sort appointments by start time (earliest first)
+        const sortedAppointments = [...response.data].sort((a, b) => 
+          new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+        );
+        setAppointments(sortedAppointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       } finally {
@@ -195,7 +200,10 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ userData }) => {
             <Bell className="h-4 w-4 mr-2" />
             Notifications
           </Button>
-          <Button className="bg-green-600 hover:bg-green-700 text-white">
+          <Button 
+            className="bg-green-600 hover:bg-green-700 text-white"
+            onClick={() => window.location.href = "/client/appointment"}
+          >
             <Plus className="h-4 w-4 mr-2" />
             New Appointment
           </Button>

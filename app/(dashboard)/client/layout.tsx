@@ -15,7 +15,7 @@ export default function RootLayout({
     const storedRole = localStorage.getItem("role");
 
     if (storedRole !== "patient" && typeof window !== "undefined") {
-      router.replace("/"); 
+      router.replace("/login"); 
     }
   }, [router]);
 

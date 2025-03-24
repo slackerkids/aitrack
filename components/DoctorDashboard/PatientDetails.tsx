@@ -119,6 +119,13 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
         patientData.address = patientData.personal_info.address
         patientData.riskLevel = patientData.medical_info.riskLevel
         
+        // Sort appointments by date (earliest first)
+        if (patientData.appointments && Array.isArray(patientData.appointments)) {
+          patientData.appointments.sort((a: Appointment, b: Appointment) => 
+            new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+          )
+        }
+        
         setPatient(patientData)
       } catch (error) {
         console.error("Error fetching patient details:", error)
@@ -251,7 +258,10 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
           </div>
 
           <div className="flex flex-col md:flex-row gap-3">
-            <Button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
+            <Button 
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+              onClick={() => window.location.href = `/doctor/appointments/new?patientId=${patient.id}`}
+            >
               <Calendar className="h-4 w-4 mr-2" />
               Schedule Appointment
             </Button>
@@ -295,15 +305,15 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
               </CardHeader>
               <CardContent className="pt-4">
                 <div className="space-y-3">
-                  <div>
+                    <div>
                     <div className="text-sm text-green-600 mb-1">Condition</div>
                     <div className="font-medium text-green-800">{patient.medical_info.condition || "None specified"}</div>
                   </div>
-                  <div>
+                    <div>
                     <div className="text-sm text-green-600 mb-1">Blood Type</div>
                     <div className="font-medium text-green-800">{patient.medical_info.bloodType || "Unknown"}</div>
                   </div>
-                  <div>
+                    <div>
                     <div className="text-sm text-green-600 mb-1">Last Visit</div>
                     <div className="font-medium text-green-800">
                       {patient.medical_info.lastVisit ? formatDate(patient.medical_info.lastVisit) : "No visits recorded"}
@@ -319,7 +329,7 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
               </CardHeader>
               <CardContent className="pt-4">
                 {patient.requests && patient.requests.length > 0 ? (
-                  <div className="space-y-3">
+                <div className="space-y-3">
                     {patient.requests.map((request) => (
                       <div key={request.id} className="bg-green-50 p-3 rounded-md">
                         <div className="flex items-center justify-between mb-2">
@@ -327,12 +337,12 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
                           <Badge className="bg-green-100 text-green-800">
                             {request.status ? "Answered" : "Pending"}
                           </Badge>
-                        </div>
+                      </div>
                         <div className="text-xs text-green-700">{formatDate(request.date)}</div>
                         <div className="text-sm text-green-700 mt-2">{request.symptoms}</div>
-                      </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+                </div>
                 ) : (
                   <div className="text-center py-4 text-green-600">No recent requests</div>
                 )}
@@ -345,24 +355,24 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
               </CardHeader>
               <CardContent className="pt-4">
                 {patient.appointments && patient.appointments.length > 0 ? (
-                  <div className="space-y-3">
+                <div className="space-y-3">
                     {patient.appointments.slice(0, 3).map((appointment) => (
                       <div key={appointment.id} className="bg-green-50 p-3 rounded-md">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center">
                             <Calendar className="h-4 w-4 text-green-700 mr-2" />
                             <div className="text-sm font-medium text-green-800">{formatDate(appointment.start_time)}</div>
-                          </div>
+                  </div>
                           <Badge className={`${appointment.appointment_type === 'online' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
                             {appointment.appointment_type}
-                          </Badge>
-                        </div>
+                        </Badge>
+                    </div>
                         <div className="flex items-center text-xs text-green-700">
                           <Clock className="h-3 w-3 mr-1" />
                           {formatTime(appointment.start_time)} - {formatTime(appointment.end_time)}
-                        </div>
-                      </div>
-                    ))}
+                </div>
+                    </div>
+                  ))}
                   </div>
                 ) : (
                   <div className="text-center py-4 text-green-600">No upcoming appointments</div>
@@ -410,8 +420,13 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            {appointment.appointment_type === 'online' && (
-                              <Button variant="outline" size="sm" className="h-8 text-blue-700 border-blue-200 hover:bg-blue-50">
+                            {appointment.appointment_type === 'online' && appointment.meeting_link && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-8 text-blue-700 border-blue-200 hover:bg-blue-50"
+                                onClick={() => window.open(appointment.meeting_link, "_blank")}
+                              >
                                 Join Meeting
                               </Button>
                             )}
@@ -487,7 +502,7 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
                             <FileText className="h-5 w-5 text-green-700" />
                             <h3 className="font-medium text-green-800">{selectedConversation.chat_title}</h3>
                           </div>
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                             <div className="text-sm text-green-700">{formatDate(selectedConversation.created_at)}</div>
                             <Badge className="bg-green-100 text-green-800">
                               {selectedConversation.confirmed ? "Confirmed" : "Open"}
@@ -533,7 +548,7 @@ export default function PatientDetails({ patientId, onBack }: PatientDetailsProp
                       Select a conversation to view
                     </div>
                   )}
-                </div>
+                  </div>
               ) : (
                 <div className="text-center py-6 text-green-600">No conversations found</div>
               )}
