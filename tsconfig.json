@@ -5,6 +5,8 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "target": "es2015",
+    "downlevelIteration": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",

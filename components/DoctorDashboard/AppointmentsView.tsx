@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {
   CalendarIcon,
@@ -20,7 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
-// Updated interface to match the actual API response
+// Обновленный интерфейс для соответствия фактическому ответу API
 interface Doctor {
   id: number
   name: string
@@ -40,7 +38,14 @@ interface Appointment {
   }
   reason?: string
   notes?: string
-  type?: "video" | "in-person"
+  type?: "online" | "in-person"
+}
+
+// Новый интерфейс для обработанных назначений
+interface ProcessedAppointment extends Appointment {
+  date: string; // Добавляем свойство date
+  startTime: string; // Добавляем свойство startTime
+  endTime: string; // Добавляем свойство endTime
 }
 
 interface AppointmentsViewProps {
@@ -50,9 +55,9 @@ interface AppointmentsViewProps {
 export default function AppointmentsView({ appointments = [] }: AppointmentsViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [currentView, setCurrentView] = useState<"day" | "week" | "month">("day")
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
+  const [selectedAppointment, setSelectedAppointment] = useState<ProcessedAppointment | null>(null);
 
-  // Format date for display
+  // Форматируем дату для отображения
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
       weekday: "long",
@@ -62,7 +67,7 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
     })
   }
 
-  // Navigate to previous/next day
+  // Переход к предыдущему/следующему дню
   const navigateDate = (direction: "prev" | "next") => {
     const newDate = new Date(currentDate)
     if (currentView === "day") {
@@ -75,23 +80,23 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
     setCurrentDate(newDate)
   }
 
-  // Get time slots for the day
+  // Получаем временные слоты для дня
   const timeSlots = Array.from({ length: 9 }, (_, i) => {
-    const hour = i + 8 // Start at 8 AM
+    const hour = i + 8 // Начинаем с 8 утра
     return `${hour.toString().padStart(2, "0")}:00`
   })
 
-  // Process appointments to extract date and time information
-  const processedAppointments = appointments.map((appointment) => {
+  // Обрабатываем назначения для извлечения информации о дате и времени
+  const processedAppointments: ProcessedAppointment[] = appointments.map((appointment) => {
     try {
-      // Extract date and time from start_time and end_time
+      // Извлекаем дату и время из start_time и end_time
       const startDateTime = new Date(appointment.start_time)
       const endDateTime = new Date(appointment.end_time)
 
-      // Format date as YYYY-MM-DD
+      // Форматируем дату как YYYY-MM-DD
       const date = startDateTime.toISOString().split("T")[0]
 
-      // Format times as HH:MM
+      // Форматируем время как HH:MM
       const startTime = startDateTime.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
@@ -106,31 +111,30 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
 
       return {
         ...appointment,
-        date,
-        startTime,
-        endTime,
-        // Default to video if type is not specified
-        type: appointment.type || "video",
+        date, // Убедитесь, что date включен
+        startTime, // Убедитесь, что startTime включен
+        endTime, // Убедитесь, что endTime включен
+        type: appointment.type || "online", // По умолчанию online, если тип не указан
       }
     } catch (error) {
       console.error("Error processing appointment:", error, appointment)
-      return appointment
+      return appointment as ProcessedAppointment // Приводим к типу ProcessedAppointment
     }
   })
 
-  // Filter appointments for the current date
+  // Фильтруем назначения для текущей даты
   const currentDateStr = currentDate.toISOString().split("T")[0]
   const todayAppointments = processedAppointments.filter((app) => {
     try {
-      return app.date === currentDateStr
+      return app.date === currentDateStr // Теперь TypeScript знает, что у app есть свойство date
     } catch (error) {
       console.error("Error filtering appointment:", error, app)
       return false
     }
   })
 
-  // Group appointments by time
-  const appointmentsByTime: Record<string, Appointment[]> = {}
+  // Группируем назначения по времени
+  const appointmentsByTime: Record<string, ProcessedAppointment[]> = {}
   todayAppointments.forEach((app) => {
     if (!app.startTime) return
 
@@ -143,7 +147,7 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
 
   return (
     <div>
-      {/* Calendar Header */}
+      {/* Заголовок календаря */}
       <div className="flex items-center justify-between pb-4">
         <div className="flex items-center gap-4">
           <Button
@@ -196,7 +200,7 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
         </div>
       </div>
 
-      {/* Day View */}
+      {/* Вид дня */}
       {currentView === "day" && (
         <div className="bg-white rounded-xl shadow-md border border-green-100 p-4">
           <div className="flex items-center justify-between mb-4">
@@ -221,7 +225,7 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
                     <span className="text-sm font-medium text-green-800">{time}</span>
                   </div>
 
-                  {/* Appointments at this hour */}
+                  {/* Назначения в этот час */}
                   {appointmentsAtTime.map((appointment) => (
                     <Card
                       key={appointment.id}
@@ -253,17 +257,17 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
                           <div className="flex items-center gap-2">
                             <Badge
                               className={
-                                appointment.type === "video"
+                                appointment.type === "online"
                                   ? "bg-blue-100 text-blue-700"
                                   : "bg-purple-100 text-purple-700"
                               }
                             >
-                              {appointment.type === "video" ? (
+                              {appointment.type === "online" ? (
                                 <Video className="h-3 w-3 mr-1" />
                               ) : (
                                 <MapPin className="h-3 w-3 mr-1" />
                               )}
-                              {appointment.type === "video" ? "Video" : "In-person"}
+                              {appointment.type === "online" ? "Online" : "In-person"}
                             </Badge>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -292,7 +296,7 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
                     </Card>
                   ))}
 
-                  {/* Appointments at half past this hour */}
+                  {/* Назначения в полчаса */}
                   {appointmentsAtHalfHour.map((appointment) => (
                     <Card
                       key={appointment.id}
@@ -324,17 +328,17 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
                           <div className="flex items-center gap-2">
                             <Badge
                               className={
-                                appointment.type === "video"
+                                appointment.type === "online"
                                   ? "bg-blue-100 text-blue-700"
                                   : "bg-purple-100 text-purple-700"
                               }
                             >
-                              {appointment.type === "video" ? (
+                              {appointment.type === "online" ? (
                                 <Video className="h-3 w-3 mr-1" />
                               ) : (
                                 <MapPin className="h-3 w-3 mr-1" />
                               )}
-                              {appointment.type === "video" ? "Video" : "In-person"}
+                              {appointment.type === "online" ? "Online" : "In-person"}
                             </Badge>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -371,7 +375,7 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
         </div>
       )}
 
-      {/* Appointment Details Modal */}
+      {/* Модальное окно с деталями назначения */}
       {selectedAppointment && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 p-6">
@@ -408,17 +412,17 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
                   <div className="flex items-center gap-2 mt-1">
                     <Badge
                       className={
-                        selectedAppointment.type === "video"
+                        selectedAppointment.type === "online"
                           ? "bg-blue-100 text-blue-700"
                           : "bg-purple-100 text-purple-700"
                       }
                     >
-                      {selectedAppointment.type === "video" ? (
+                      {selectedAppointment.type === "online" ? (
                         <Video className="h-3 w-3 mr-1" />
                       ) : (
                         <MapPin className="h-3 w-3 mr-1" />
                       )}
-                      {selectedAppointment.type === "video" ? "Video Call" : "In-person Visit"}
+                      {selectedAppointment.type === "online" ? "Online Call" : "In-person Visit"}
                     </Badge>
                     <div className="text-xs text-green-600">
                       {new Date(selectedAppointment.start_time).toLocaleDateString()} • {selectedAppointment.startTime}{" "}
@@ -496,7 +500,7 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
         </div>
       )}
 
-      {/* Week View Placeholder */}
+      {/* Плейсхолдер для вида недели */}
       {currentView === "week" && (
         <div className="text-center py-8 bg-white rounded-lg border border-green-100">
           <CalendarIcon className="h-12 w-12 text-green-300 mx-auto mb-2" />
@@ -505,7 +509,7 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
         </div>
       )}
 
-      {/* Month View Placeholder */}
+      {/* Плейсхолдер для вида месяца */}
       {currentView === "month" && (
         <div className="text-center py-8 bg-white rounded-lg border border-green-100">
           <CalendarIcon className="h-12 w-12 text-green-300 mx-auto mb-2" />
@@ -516,4 +520,3 @@ export default function AppointmentsView({ appointments = [] }: AppointmentsView
     </div>
   )
 }
-

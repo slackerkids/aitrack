@@ -1,19 +1,7 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import AppointmentsView from "../DoctorDashboard/AppointmentsView"
 import axiosInstance from "@/app/axios/instance"
-
-interface Appointment {
-  id: number
-  patient_name: string
-  patient_id: number
-  date: string
-  time: string
-  status: string
-  reason?: string
-  // Add other appointment properties as needed
-}
+import { Appointment } from "@/app/types/types"
 
 export default function DoctorDashboard() {
   const [isLoaded, setIsLoaded] = useState(false)
@@ -78,4 +66,3 @@ export default function DoctorDashboard() {
     </div>
   )
 }
-
