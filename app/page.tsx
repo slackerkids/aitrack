@@ -21,7 +21,9 @@ export default function HeroSection() {
               {["Features", "Docs"].map((item) => (
                 <Link
                   key={item}
-                  href={item === "Features" ? "#features" : `/${item.toLowerCase()}`}
+                  href={item === "Features" ? "#features" : "https://github.com/azekowka/aitrack/tree/main?tab=readme-ov-file#readme"}
+                  target={item === "Docs" ? "_blank" : undefined}
+                  rel={item === "Docs" ? "noopener noreferrer" : undefined}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
                   {item}
