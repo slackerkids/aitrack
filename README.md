@@ -1,19 +1,15 @@
-# HealHunter
+# <p align ="center" height="40px" width="40px"> HealHunter </p>
 
 An AI-backed telehealth SaaS for preliminary diagnosis.
 
 ## TODO
 
-- [x] new ClientCalendarUI (client/calendar, components/calendar)
-- [x] new ClientDiagnosisUI (client/analysis, components/analysis, api/transcribe, hooks/use-file-input, )
+- [x] UI/UX (client, doctor)
 - [x] Landing + onboarding
-- [x] Redesign Navbars
-- [x] new DoctorDashboardUI (doctor/dashboard, components/DoctorDashboard)
-- [] FIX GEMINI, WHISPER - urgent
-- [] Restructure APP.PY
-- [] Google Meet API for video calls in Calendar 
-- [] Add analytics (PostHog or Vercel) - not urgent
-- [] Add Languine AI for 3-language translation
-- [] Deployment
+- [x] Fix GEMINI 1.5, OpenAI WHISPER
+- [x] Restructure APP.PY
+- [x] Google Meet for video calls in Calendar 
+- [x] Skin Disease AI implementation
+- [x] Deployment on Vercel
 
 Link to the backend repo: https://github.com/Bebdyshev/aitrack-back
