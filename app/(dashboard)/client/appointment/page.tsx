@@ -419,24 +419,24 @@ const CreateAppointment = () => {
                         <Label className="block text-sm font-medium text-gray-700 mb-2">Appointment Type</Label>
                         <RadioGroup
                           value={appointmentType}
-                          onValueChange={(value) => setAppointmentType(value as "video" | "in-person")}
+                          onValueChange={(value) => setAppointmentType(value as "online" | "in-person")}
                           className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-4"
                         >
                           <div
                             className={`flex items-center space-x-2 p-3 rounded-md cursor-pointer border transition ${
-                              appointmentType === "video"
+                              appointmentType === "online"
                                 ? "bg-green-500 text-white border-green-500 hover:bg-green-600"
                                 : "bg-white text-green-700 border-green-200 hover:bg-green-50"
                             }`}
-                            onClick={() => setAppointmentType("video")}
+                            onClick={() => setAppointmentType("online")}
                           >
-                            <RadioGroupItem value="video" id="video" className="hidden" />
-                            <Label htmlFor="video" className="flex items-center cursor-pointer">
+                            <RadioGroupItem value="online" id="online" className="hidden" />
+                            <Label htmlFor="online" className="flex items-center cursor-pointer">
                               <Video className="w-4 h-4 mr-2" />
                               <span>Video Call</span>
                             </Label>
                           </div>
-                          
+
                           <div
                             className={`flex items-center space-x-2 p-3 rounded-md cursor-pointer border transition ${
                               appointmentType === "in-person"
@@ -452,7 +452,6 @@ const CreateAppointment = () => {
                             </Label>
                           </div>
                         </RadioGroup>
-
                       </div>
 
                       <div className="flex justify-end">
