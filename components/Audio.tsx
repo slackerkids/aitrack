@@ -141,6 +141,14 @@ const CustomAudioPlayer = ({ audioUrl }: { audioUrl: string }) => {
   )
 }
 
+// Добавим новый интерфейс для пациентов
+interface Patient {
+  id: number;
+  name: string;
+  status?: string;
+  risk_level?: string;
+}
+
 const AudioTranscription = () => {
   const [isRecording, setIsRecording] = useState(false)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
@@ -154,6 +162,38 @@ const AudioTranscription = () => {
   const [audioChunks, setAudioChunks] = useState<Blob[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  // Новые состояния для управления пациентами
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null)
+  const [isLoadingPatients, setIsLoadingPatients] = useState(false)
+
+  // Получение списка пациентов
+  useEffect(() => {
+    const fetchPatients = async () => {
+      setIsLoadingPatients(true);
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://127.0.0.1:8000/my_patients/", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch patients");
+        }
+        
+        const data = await response.json();
+        setPatients(data);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      } finally {
+        setIsLoadingPatients(false);
+      }
+    };
+    
+    fetchPatients();
+  }, []);
 
   useEffect(() => {
     const initMediaRecorder = async () => {
@@ -325,6 +365,10 @@ const AudioTranscription = () => {
 
   const sendAudioToServer = async () => {
     if (!audioBlob) return
+    if (!selectedPatientId) {
+      setErrorMessage("Please select a patient before submitting");
+      return;
+    }
 
     setIsLoading(true)
     setProcessingProgress(0)
@@ -335,11 +379,11 @@ const AudioTranscription = () => {
     const token = localStorage.getItem("token")
 
     try {
-      // Call the actual API endpoint
-      const response = await fetch("http://127.0.0.1:8000/transcribe", {
+      // Call the API endpoint with patient_id as a query parameter
+      const response = await fetch(`http://127.0.0.1:8000/transcribe?patient_id=${selectedPatientId}`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: formData,
       })
@@ -357,6 +401,7 @@ const AudioTranscription = () => {
     } catch (error) {
       console.error("Error uploading file:", error)
       setIsLoading(false)
+      setErrorMessage(`Upload error: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -605,6 +650,66 @@ const AudioTranscription = () => {
                           </div>
                         </div>
 
+                        {/* Patient selection section */}
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                          <h4 className="text-sm font-medium text-gray-700 mb-3">Select Patient</h4>
+                          
+                          {isLoadingPatients ? (
+                            <div className="flex justify-center p-4">
+                              <Loader2 className="h-6 w-6 animate-spin text-[#16a07c]" />
+                            </div>
+                          ) : patients.length > 0 ? (
+                            <div className="space-y-3">
+                              <p className="text-sm text-gray-600">
+                                Select the patient for whom this transcription is being created:
+                              </p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {patients.map((patient) => (
+                                  <div 
+                                    key={patient.id}
+                                    className={`
+                                      p-3 rounded-md border cursor-pointer transition-colors
+                                      ${selectedPatientId === patient.id 
+                                        ? 'bg-[#16a07c]/10 border-[#16a07c]' 
+                                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                                      }
+                                    `}
+                                    onClick={() => setSelectedPatientId(patient.id)}
+                                  >
+                                    <div className="flex items-center">
+                                      <div className={`w-3 h-3 rounded-full mr-2 ${
+                                        selectedPatientId === patient.id ? 'bg-[#16a07c]' : 'bg-gray-300'
+                                      }`} />
+                                      <div>
+                                        <p className="font-medium text-gray-800">{patient.name}</p>
+                                        {patient.status && (
+                                          <p className="text-xs text-gray-500">{patient.status}</p>
+                                        )}
+                                      </div>
+                                      {patient.risk_level && (
+                                        <Badge 
+                                          className={`ml-auto ${
+                                            patient.risk_level === 'High' ? 'bg-red-100 text-red-800' :
+                                            patient.risk_level === 'Medium' ? 'bg-amber-100 text-amber-800' :
+                                            'bg-green-100 text-green-800'
+                                          }`}
+                                        >
+                                          {patient.risk_level}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-amber-50 p-3 rounded-md border border-amber-100 text-amber-800 text-sm">
+                              <AlertCircle className="w-4 h-4 inline mr-2" />
+                              No patients available. Please add patients first.
+                            </div>
+                          )}
+                        </div>
+
                         <div className="text-sm text-gray-600">
                           <p>
                             Please review your recording before submitting for transcription. You can re-record if
@@ -646,7 +751,7 @@ const AudioTranscription = () => {
                             <Button
                               onClick={sendAudioToServer}
                               className="bg-gradient-to-r from-[#16a07c] to-[#75eea1] hover:from-[#138e6e] hover:to-[#5ed889] text-white px-6"
-                              disabled={isLoading || !audioBlob || (audioBlob && audioBlob.size < 100)}
+                              disabled={isLoading || !audioBlob || !selectedPatientId || (audioBlob && audioBlob.size < 100)}
                             >
                               {isLoading ? (
                                 <>
